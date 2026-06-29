@@ -17,10 +17,10 @@ object ServerRepository {
             _servers.value + server
     }
 
-    fun remove(id: String) {
+    fun remove(server: ServerConfig) {
         _servers.value =
             _servers.value.filterNot {
-                it.id == id
+                it == server
             }
     }
 
