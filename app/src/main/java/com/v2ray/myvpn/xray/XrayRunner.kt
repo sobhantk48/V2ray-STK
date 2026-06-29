@@ -11,16 +11,22 @@ object XrayRunner {
     private var process: Process? = null
 
     fun isRunning(): Boolean {
-        return process != null
+        return process?.isAlive == true
     }
 
     fun start(
         context: Context
     ): Boolean {
 
-        if (process != null) {
+        if (isRunning()) {
+            Log.d(
+                TAG,
+                "xray already running"
+            )
             return true
         }
+
+        process = null
 
         val binary =
             File(
@@ -79,19 +85,64 @@ object XrayRunner {
             )
 
             process = null
+
             false
         }
     }
 
     fun stop() {
 
-        process?.destroy()
+        try {
 
-        process = null
+            process?.let {
 
-        Log.d(
-            TAG,
-            "xray stopped"
-        )
+                if (it.isAlive) {
+
+                    Log.d(
+                        TAG,
+                        "destroying xray process"
+                    )
+
+                    it.destroy()
+
+                    try {
+                        it.waitFor()
+                    } catch (_: Exception) {
+                    }
+
+                    if (it.isAlive) {
+
+                        Log.d(
+                            TAG,
+                            "forcing xray process"
+                        )
+
+                        it.destroyForcibly()
+
+                        try {
+                            it.waitFor()
+                        } catch (_: Exception) {
+                        }
+                    }
+                }
+            }
+
+        } catch (e: Exception) {
+
+            Log.e(
+                TAG,
+                "stop failed",
+                e
+            )
+
+        } finally {
+
+            process = null
+
+            Log.d(
+                TAG,
+                "xray stopped"
+            )
+        }
     }
 }
