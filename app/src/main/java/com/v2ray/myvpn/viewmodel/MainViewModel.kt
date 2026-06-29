@@ -6,8 +6,10 @@ import androidx.lifecycle.AndroidViewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
 import com.v2ray.myvpn.vpn.VpnManager
+import com.v2ray.myvpn.xray.AssetExtractor
 import com.v2ray.myvpn.xray.ConfigRepository
 import com.v2ray.myvpn.xray.XrayConfigGenerator
+import com.v2ray.myvpn.xray.XrayRunner
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel(
@@ -39,6 +41,10 @@ class MainViewModel(
     private fun connect() {
 
         try {
+
+            val context =
+                getApplication<Application>()
+
             val config =
                 VlessParser.parse(
                     "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp&sni=google.com#Test"
@@ -52,7 +58,7 @@ class MainViewModel(
                 )
 
             ConfigRepository.save(
-                getApplication(),
+                context,
                 json
             )
 
@@ -61,14 +67,44 @@ class MainViewModel(
                 "config.json saved"
             )
 
-        } catch (e: Exception) {
-            Log.e(TAG, "Parser error", e)
-        }
+            if (
+                !AssetExtractor.extractXray(
+                    context
+                )
+            ) {
+                Log.e(
+                    TAG,
+                    "xray extraction failed"
+                )
+                return
+            }
 
-        VpnManager.setConnecting()
+            if (
+                XrayRunner.start(
+                    context
+                )
+            ) {
+                VpnManager.setConnected()
+            } else {
+                VpnManager.setDisconnected()
+            }
+
+        } catch (e: Exception) {
+
+            Log.e(
+                TAG,
+                "connect failed",
+                e
+            )
+
+            VpnManager.setDisconnected()
+        }
     }
 
     private fun disconnect() {
+
+        XrayRunner.stop()
+
         VpnManager.setDisconnecting()
         VpnManager.setDisconnected()
     }
