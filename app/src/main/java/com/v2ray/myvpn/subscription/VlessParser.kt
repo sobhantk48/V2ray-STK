@@ -13,35 +13,81 @@ object VlessParser {
         val uri = Uri.parse(link)
 
         return ServerConfig(
-            remarks = uri.fragment ?: "VLESS",
 
+            // display
+            remarks =
+                uri.fragment ?: "VLESS",
+
+            // protocol
             protocol = "vless",
 
-            address = uri.host ?: "",
+            // server
+            address =
+                uri.host ?: "",
 
-            port = uri.port,
+            port =
+                uri.port,
 
-            uuid = uri.userInfo ?: "",
+            // auth
+            uuid =
+                uri.userInfo ?: "",
 
-            security =
-                uri.getQueryParameter("security")
-                    ?: "none",
+            flow =
+                uri.getQueryParameter("flow")
+                    ?: "",
 
+            // transport
             network =
                 uri.getQueryParameter("type")
                     ?: "tcp",
-
-            path =
-                uri.getQueryParameter("path")
-                    ?: "",
 
             host =
                 uri.getQueryParameter("host")
                     ?: "",
 
+            path =
+                uri.getQueryParameter("path")
+                    ?: "",
+
+            serviceName =
+                uri.getQueryParameter(
+                    "serviceName"
+                ) ?: "",
+
+            // tls/reality
+            security =
+                uri.getQueryParameter(
+                    "security"
+                ) ?: "none",
+
             sni =
                 uri.getQueryParameter("sni")
                     ?: "",
+
+            fingerprint =
+                uri.getQueryParameter("fp")
+                    ?: "",
+
+            publicKey =
+                uri.getQueryParameter("pbk")
+                    ?: "",
+
+            shortId =
+                uri.getQueryParameter("sid")
+                    ?: "",
+
+            spiderX =
+                uri.getQueryParameter("spx")
+                    ?: "",
+
+            // tls options
+            alpn =
+                uri.getQueryParameter("alpn")
+                    ?.split(",")
+                    ?.filter {
+                        it.isNotBlank()
+                    }
+                    ?: emptyList(),
 
             allowInsecure =
                 (uri.getQueryParameter(
