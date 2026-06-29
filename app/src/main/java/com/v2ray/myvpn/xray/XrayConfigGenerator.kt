@@ -8,6 +8,31 @@ object XrayConfigGenerator {
         config: ServerConfig
     ): String {
 
+        val securityBlock =
+            when (config.security) {
+
+                "tls" ->
+                    """
+        "tlsSettings": {
+          "serverName": "${config.sni}",
+          "allowInsecure": ${config.allowInsecure}
+        }
+                    """.trimIndent()
+
+                "reality" ->
+                    """
+        "realitySettings": {
+          "serverName": "${config.sni}",
+          "fingerprint": "${config.fingerprint}",
+          "publicKey": "${config.publicKey}",
+          "shortId": "${config.shortId}",
+          "spiderX": "${config.spiderX}"
+        }
+                    """.trimIndent()
+
+                else -> ""
+            }
+
         return """
 {
   "log": {
@@ -48,20 +73,8 @@ object XrayConfigGenerator {
 
       "streamSettings": {
         "network": "${config.network}",
-        "security": "${config.security}",
-
-        "tlsSettings": {
-          "serverName": "${config.sni}",
-          "allowInsecure": ${config.allowInsecure}
-        },
-
-        "realitySettings": {
-          "serverName": "${config.sni}",
-          "fingerprint": "${config.fingerprint}",
-          "publicKey": "${config.publicKey}",
-          "shortId": "${config.shortId}",
-          "spiderX": "${config.spiderX}"
-        }
+        "security": "${config.security}"
+        ${if (securityBlock.isNotEmpty()) ",\n$securityBlock" else ""}
       }
     }
   ]
