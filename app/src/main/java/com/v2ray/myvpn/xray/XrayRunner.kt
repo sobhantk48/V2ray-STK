@@ -34,16 +34,6 @@ object XrayRunner {
                 "config.json"
             )
 
-        Log.d(
-            TAG,
-            "binary=${binary.absolutePath}"
-        )
-
-        Log.d(
-            TAG,
-            "config=${config.absolutePath}"
-        )
-
         if (!binary.exists()) {
             Log.e(
                 TAG,
@@ -62,10 +52,7 @@ object XrayRunner {
 
         return try {
 
-            binary.setExecutable(
-                true,
-                false
-            )
+            binary.setExecutable(true)
 
             process =
                 ProcessBuilder(
@@ -76,35 +63,9 @@ object XrayRunner {
                     .redirectErrorStream(true)
                     .start()
 
-            Thread {
-
-                try {
-
-                    process
-                        ?.inputStream
-                        ?.bufferedReader()
-                        ?.forEachLine {
-
-                            Log.d(
-                                TAG,
-                                "XRAY: $it"
-                            )
-                        }
-
-                } catch (e: Exception) {
-
-                    Log.e(
-                        TAG,
-                        "log reader error",
-                        e
-                    )
-                }
-
-            }.start()
-
             Log.d(
                 TAG,
-                "xray started pid=${process?.pid()}"
+                "xray started"
             )
 
             true
@@ -118,7 +79,6 @@ object XrayRunner {
             )
 
             process = null
-
             false
         }
     }
