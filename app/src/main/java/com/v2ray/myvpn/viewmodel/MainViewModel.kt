@@ -1,10 +1,12 @@
 package com.v2ray.myvpn.viewmodel
 
 import android.app.Application
+import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
+import com.v2ray.myvpn.vpn.MyVpnService
 import com.v2ray.myvpn.vpn.VpnManager
 import com.v2ray.myvpn.xray.AssetExtractor
 import com.v2ray.myvpn.xray.ConfigRepository
@@ -62,20 +64,12 @@ class MainViewModel(
                 json
             )
 
-            Log.d(
-                TAG,
-                "config.json saved"
-            )
-
             if (
                 !AssetExtractor.extractXray(
                     context
                 )
             ) {
-                Log.e(
-                    TAG,
-                    "xray extraction failed"
-                )
+                Log.e(TAG, "xray extraction failed")
                 return
             }
 
@@ -84,8 +78,18 @@ class MainViewModel(
                     context
                 )
             ) {
+
+                context.startService(
+                    Intent(
+                        context,
+                        MyVpnService::class.java
+                    )
+                )
+
                 VpnManager.setConnected()
+
             } else {
+
                 VpnManager.setDisconnected()
             }
 
@@ -103,7 +107,17 @@ class MainViewModel(
 
     private fun disconnect() {
 
+        val context =
+            getApplication<Application>()
+
         XrayRunner.stop()
+
+        context.stopService(
+            Intent(
+                context,
+                MyVpnService::class.java
+            )
+        )
 
         VpnManager.setDisconnecting()
         VpnManager.setDisconnected()
