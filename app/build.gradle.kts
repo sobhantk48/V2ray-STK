@@ -14,6 +14,9 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.0.1"
+
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -23,8 +26,10 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility =
+            JavaVersion.VERSION_17
+        targetCompatibility =
+            JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -40,10 +45,25 @@ dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.activity:activity-compose:1.10.1")
 
-    implementation(platform("androidx.compose:compose-bom:2025.06.00"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(
+        platform(
+            "androidx.compose:compose-bom:2025.06.00"
+        )
+    )
 
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui")
+    implementation(
+        "androidx.compose.ui:ui-tooling-preview"
+    )
+    implementation(
+        "androidx.compose.material3:material3"
+    )
+
+    implementation(
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
+    )
+
+    debugImplementation(
+        "androidx.compose.ui:ui-tooling"
+    )
 }

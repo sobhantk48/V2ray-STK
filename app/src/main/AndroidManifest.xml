@@ -3,9 +3,12 @@
     package="com.v2ray.myvpn"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission
+        android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="V2ray STK"
         android:allowBackup="true"
+        android:label="V2ray STK"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
@@ -14,14 +17,25 @@
             android:exported="true">
 
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN"/>
 
                 <category
                     android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
         </activity>
+
+        <service
+            android:name=".vpn.MyVpnService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:exported="false">
+
+            <intent-filter>
+                <action
+                    android:name="android.net.VpnService"/>
+            </intent-filter>
+
+        </service>
 
     </application>
 
