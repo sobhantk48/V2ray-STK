@@ -33,6 +33,29 @@ object XrayConfigGenerator {
                 else -> ""
             }
 
+        val transportBlock =
+            when (config.network) {
+
+                "ws" ->
+                    """
+        "wsSettings": {
+          "path": "${config.path}",
+          "headers": {
+            "Host": "${config.host}"
+          }
+        }
+                    """.trimIndent()
+
+                "grpc" ->
+                    """
+        "grpcSettings": {
+          "serviceName": "${config.serviceName}"
+        }
+                    """.trimIndent()
+
+                else -> ""
+            }
+
         return """
 {
   "log": {
@@ -75,6 +98,7 @@ object XrayConfigGenerator {
         "network": "${config.network}",
         "security": "${config.security}"
         ${if (securityBlock.isNotEmpty()) ",\n$securityBlock" else ""}
+        ${if (transportBlock.isNotEmpty()) ",\n$transportBlock" else ""}
       }
     }
   ]
