@@ -1,8 +1,11 @@
 package com.v2ray.myvpn
 
+import android.content.Intent
+import android.net.VpnService
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,20 +25,50 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.viewmodel.MainViewModel
+import com.v2ray.myvpn.vpn.MyVpnService
 
 class MainActivity : ComponentActivity() {
+
+    private val vpnPermission =
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            startService(
+                Intent(
+                    this,
+                    MyVpnService::class.java
+                )
+            )
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AppScreen()
+            AppScreen(
+                onConnect = {
+                    val intent =
+                        VpnService.prepare(this)
+
+                    if (intent != null) {
+                        vpnPermission.launch(intent)
+                    } else {
+                        startService(
+                            Intent(
+                                this,
+                                MyVpnService::class.java
+                            )
+                        )
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
 fun AppScreen(
+    onConnect: () -> Unit,
     vm: MainViewModel = viewModel()
 ) {
     val state by vm.vpnState.collectAsState()
@@ -75,6 +108,7 @@ fun AppScreen(
 
             Button(
                 onClick = {
+                    onConnect()
                     vm.toggle()
                 }
             ) {
