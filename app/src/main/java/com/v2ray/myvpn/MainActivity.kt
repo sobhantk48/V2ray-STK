@@ -13,6 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,45 +47,30 @@ fun AppScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement =
-                Arrangement.Center,
-            horizontalAlignment =
-                Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
                 text = "V2ray STK",
-                style =
-                    MaterialTheme
-                        .typography
-                        .headlineMedium
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(16.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             Text(
-                text =
-                    when (state) {
-                        VpnState.DISCONNECTED ->
-                            "Disconnected"
-
-                        VpnState.CONNECTING ->
-                            "Connecting..."
-
-                        VpnState.CONNECTED ->
-                            "Connected"
-
-                        VpnState.DISCONNECTING ->
-                            "Disconnecting..."
-                    }
+                text = when (state) {
+                    VpnState.DISCONNECTED -> "Disconnected"
+                    VpnState.CONNECTING -> "Connecting..."
+                    VpnState.CONNECTED -> "Connected"
+                    VpnState.DISCONNECTING -> "Disconnecting..."
+                }
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp)
             )
 
             Button(
@@ -94,17 +80,10 @@ fun AppScreen(
             ) {
                 Text(
                     when (state) {
-                        VpnState.DISCONNECTED ->
-                            "Connect"
-
-                        VpnState.CONNECTING ->
-                            "Connecting"
-
-                        VpnState.CONNECTED ->
-                            "Disconnect"
-
-                        VpnState.DISCONNECTING ->
-                            "Disconnecting"
+                        VpnState.DISCONNECTED -> "Connect"
+                        VpnState.CONNECTING -> "Connecting"
+                        VpnState.CONNECTED -> "Disconnect"
+                        VpnState.DISCONNECTING -> "Disconnecting"
                     }
                 )
             }
