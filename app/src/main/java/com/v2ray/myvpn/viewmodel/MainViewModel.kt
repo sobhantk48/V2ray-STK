@@ -1,13 +1,18 @@
 package com.v2ray.myvpn.viewmodel
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
 import com.v2ray.myvpn.vpn.VpnManager
+import com.v2ray.myvpn.xray.ConfigRepository
+import com.v2ray.myvpn.xray.XrayConfigGenerator
 import kotlinx.coroutines.flow.StateFlow
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
     companion object {
         private const val TAG = "V2raySTK"
@@ -40,6 +45,22 @@ class MainViewModel : ViewModel() {
                 )
 
             Log.d(TAG, "CONFIG = $config")
+
+            val json =
+                XrayConfigGenerator.generate(
+                    config
+                )
+
+            ConfigRepository.save(
+                getApplication(),
+                json
+            )
+
+            Log.d(
+                TAG,
+                "config.json saved"
+            )
+
         } catch (e: Exception) {
             Log.e(TAG, "Parser error", e)
         }
