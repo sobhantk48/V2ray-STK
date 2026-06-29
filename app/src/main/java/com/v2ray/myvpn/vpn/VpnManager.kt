@@ -12,15 +12,19 @@ object VpnManager {
     val state: StateFlow<VpnState>
         get() = _state
 
-    fun connect() {
-        _state.value = VpnState.CONNECTING
-    }
-
-    fun connected() {
+    fun setConnected() {
         _state.value = VpnState.CONNECTED
     }
 
-    fun disconnect() {
+    fun setDisconnected() {
         _state.value = VpnState.DISCONNECTED
+    }
+
+    fun setConnecting() {
+        _state.value = VpnState.CONNECTING
+    }
+
+    fun setDisconnecting() {
+        _state.value = VpnState.DISCONNECTING
     }
 }

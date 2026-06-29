@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.v2ray.myvpn.vpn.VpnManager
 import kotlinx.coroutines.flow.StateFlow
 
 class MainViewModel : ViewModel() {
@@ -13,14 +13,11 @@ class MainViewModel : ViewModel() {
         private const val TAG = "V2raySTK"
     }
 
-    private val _vpnState =
-        MutableStateFlow(VpnState.DISCONNECTED)
-
     val vpnState: StateFlow<VpnState>
-        get() = _vpnState
+        get() = VpnManager.state
 
     fun toggle() {
-        when (_vpnState.value) {
+        when (vpnState.value) {
 
             VpnState.DISCONNECTED -> {
                 connect()
@@ -47,10 +44,11 @@ class MainViewModel : ViewModel() {
             Log.e(TAG, "Parser error", e)
         }
 
-        _vpnState.value = VpnState.CONNECTED
+        VpnManager.setConnecting()
     }
 
     private fun disconnect() {
-        _vpnState.value = VpnState.DISCONNECTED
+        VpnManager.setDisconnecting()
+        VpnManager.setDisconnected()
     }
 }
