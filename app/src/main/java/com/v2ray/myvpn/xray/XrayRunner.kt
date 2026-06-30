@@ -19,7 +19,7 @@ object XrayRunner {
 
             val binary =
                 File(
-                    context.filesDir,
+                    context.codeCacheDir,
                     "xray"
                 )
 
@@ -34,7 +34,8 @@ object XrayRunner {
                     .open("xray")
                     .use { input ->
 
-                        binary.outputStream()
+                        binary
+                            .outputStream()
                             .use { output ->
 
                                 input.copyTo(
@@ -43,7 +44,18 @@ object XrayRunner {
                             }
                     }
 
+                binary.setReadable(
+                    true,
+                    false
+                )
+
                 binary.setExecutable(
+                    true,
+                    false
+                )
+
+                binary.setWritable(
+                    true,
                     true
                 )
             }
@@ -56,12 +68,12 @@ object XrayRunner {
 
             DebugLog.write(
                 context,
-                "xray binary = ${binary.absolutePath}"
+                "binary=${binary.absolutePath}"
             )
 
             DebugLog.write(
                 context,
-                "config file = ${config.absolutePath}"
+                "config=${config.absolutePath}"
             )
 
             process =
@@ -95,7 +107,9 @@ object XrayRunner {
                             )
                         }
 
-                } catch (e: Exception) {
+                } catch (
+                    e: Exception
+                ) {
 
                     DebugLog.write(
                         context,
@@ -107,7 +121,9 @@ object XrayRunner {
 
             true
 
-        } catch (e: Exception) {
+        } catch (
+            e: Exception
+        ) {
 
             Log.e(
                 TAG,
