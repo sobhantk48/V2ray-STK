@@ -41,7 +41,12 @@ jobs:
             --configuration debugRuntimeClasspath
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          ./gradlew assembleDebug \
+            --stacktrace \
+            --info \
+            --warning-mode all \
+            --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
