@@ -3,6 +3,7 @@ package com.v2ray.myvpn.xray
 import android.content.Context
 import android.util.Log
 import java.io.File
+import kotlin.concurrent.thread
 
 object XrayRunner {
 
@@ -40,6 +41,17 @@ object XrayRunner {
                 "config.json"
             )
 
+        val logFile =
+            File(
+                context.filesDir,
+                "xray.log"
+            )
+
+        try {
+            logFile.writeText("")
+        } catch (_: Exception) {
+        }
+
         if (!binary.exists()) {
             Log.e(
                 TAG,
@@ -69,6 +81,42 @@ object XrayRunner {
                     .redirectErrorStream(true)
                     .start()
 
+            thread {
+
+                try {
+
+                    process
+                        ?.inputStream
+                        ?.bufferedReader()
+                        ?.useLines { lines ->
+
+                            lines.forEach { line ->
+
+                                try {
+                                    logFile.appendText(
+                                        line + "\n"
+                                    )
+                                } catch (_: Exception) {
+                                }
+
+                                Log.d(
+                                    TAG,
+                                    "XRAY: $line"
+                                )
+                            }
+                        }
+
+                } catch (e: Exception) {
+
+                    try {
+                        logFile.appendText(
+                            "LOGGER ERROR: ${e.message}\n"
+                        )
+                    } catch (_: Exception) {
+                    }
+                }
+            }
+
             Log.d(
                 TAG,
                 "xray started"
@@ -77,6 +125,13 @@ object XrayRunner {
             true
 
         } catch (e: Exception) {
+
+            try {
+                logFile.appendText(
+                    "START ERROR: ${e.stackTraceToString()}\n"
+                )
+            } catch (_: Exception) {
+            }
 
             Log.e(
                 TAG,
