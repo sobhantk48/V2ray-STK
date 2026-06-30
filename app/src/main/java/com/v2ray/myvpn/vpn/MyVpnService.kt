@@ -1,6 +1,5 @@
 package com.v2ray.myvpn.vpn
 
-import android.app.Service
 import android.content.Intent
 import android.net.VpnService
 import android.os.IBinder
@@ -11,6 +10,7 @@ import com.v2ray.myvpn.DebugLog
 class MyVpnService : VpnService() {
 
     companion object {
+
         private const val TAG = "V2raySTK"
 
         const val ACTION_STOP =
@@ -78,12 +78,22 @@ class MyVpnService : VpnService() {
                         .setSession(
                             "V2ray STK"
                         )
+                        .setMtu(
+                            1500
+                        )
                         .addAddress(
                             "10.0.0.2",
                             24
                         )
+                        .addDnsServer(
+                            "1.1.1.1"
+                        )
                         .addRoute(
                             "0.0.0.0",
+                            0
+                        )
+                        .addRoute(
+                            "::",
                             0
                         )
                         .establish()
@@ -129,7 +139,7 @@ class MyVpnService : VpnService() {
             }
         }
 
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     override fun onRevoke() {
