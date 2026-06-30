@@ -29,6 +29,17 @@ jobs:
       - name: Grant execute permission
         run: chmod +x gradlew
 
+      - name: Show libbox dependency
+        run: |
+          ./gradlew app:dependencyInsight \
+            --dependency libbox \
+            --configuration debugRuntimeClasspath
+
+      - name: Show dependency tree
+        run: |
+          ./gradlew app:dependencies \
+            --configuration debugRuntimeClasspath
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
