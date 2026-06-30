@@ -1,5 +1,6 @@
 package com.v2ray.myvpn.repository
 
+import com.v2ray.myvpn.data.SampleServers
 import com.v2ray.myvpn.model.ServerConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,7 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 object ServerRepository {
 
     private val _servers =
-        MutableStateFlow<List<ServerConfig>>(emptyList())
+        MutableStateFlow(
+            listOf(
+                SampleServers.testServer
+            )
+        )
 
     val servers: StateFlow<List<ServerConfig>>
         get() = _servers
