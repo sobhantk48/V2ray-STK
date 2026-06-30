@@ -95,10 +95,33 @@ class MyVpnService : VpnService() {
             }
         }
 
-        return Service.START_STICKY
+        return START_NOT_STICKY
+    }
+
+    override fun onRevoke() {
+
+        Log.d(
+            TAG,
+            "VPN revoked"
+        )
+
+        DebugLog.write(
+            this,
+            "vpn revoked"
+        )
+
+        vpnInterface?.close()
+        vpnInterface = null
+
+        stopSelf()
     }
 
     override fun onDestroy() {
+
+        Log.d(
+            TAG,
+            "VPN destroyed"
+        )
 
         DebugLog.write(
             this,
