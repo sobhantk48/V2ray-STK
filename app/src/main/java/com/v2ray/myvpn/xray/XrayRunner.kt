@@ -2,6 +2,7 @@ package com.v2ray.myvpn.xray
 
 import android.content.Context
 import android.util.Log
+import com.v2ray.myvpn.DebugLog
 import java.io.File
 
 object XrayRunner {
@@ -18,9 +19,34 @@ object XrayRunner {
 
             val binary =
                 File(
-                    context.applicationInfo.nativeLibraryDir,
-                    "libxray.so"
+                    context.filesDir,
+                    "xray"
                 )
+
+            if (!binary.exists()) {
+
+                DebugLog.write(
+                    context,
+                    "copying xray binary"
+                )
+
+                context.assets
+                    .open("xray")
+                    .use { input ->
+
+                        binary.outputStream()
+                            .use { output ->
+
+                                input.copyTo(
+                                    output
+                                )
+                            }
+                    }
+
+                binary.setExecutable(
+                    true
+                )
+            }
 
             val config =
                 File(
@@ -28,13 +54,13 @@ object XrayRunner {
                     "config.json"
                 )
 
-            Log.d(
-                TAG,
+            DebugLog.write(
+                context,
                 "xray binary = ${binary.absolutePath}"
             )
 
-            Log.d(
-                TAG,
+            DebugLog.write(
+                context,
                 "config file = ${config.absolutePath}"
             )
 
@@ -44,7 +70,9 @@ object XrayRunner {
                     "-config",
                     config.absolutePath
                 )
-                    .redirectErrorStream(true)
+                    .redirectErrorStream(
+                        true
+                    )
                     .start()
 
             Thread {
@@ -58,11 +86,21 @@ object XrayRunner {
 
                             Log.d(
                                 TAG,
+                                it
+                            )
+
+                            DebugLog.write(
+                                context,
                                 "XRAY: $it"
                             )
                         }
 
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+
+                    DebugLog.write(
+                        context,
+                        "reader exception: ${e.message}"
+                    )
                 }
 
             }.start()
@@ -73,8 +111,13 @@ object XrayRunner {
 
             Log.e(
                 TAG,
-                "xray start exception",
+                "xray start failed",
                 e
+            )
+
+            DebugLog.write(
+                context,
+                "start exception: ${e.message}"
             )
 
             false
