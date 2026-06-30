@@ -6,6 +6,7 @@ import android.net.VpnService
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import com.v2ray.myvpn.DebugLog
 
 class MyVpnService : VpnService() {
 
@@ -13,7 +14,8 @@ class MyVpnService : VpnService() {
         private const val TAG = "V2raySTK"
     }
 
-    private var vpnInterface: ParcelFileDescriptor? = null
+    private var vpnInterface:
+        ParcelFileDescriptor? = null
 
     override fun onStartCommand(
         intent: Intent?,
@@ -21,14 +23,27 @@ class MyVpnService : VpnService() {
         startId: Int
     ): Int {
 
+        DebugLog.write(
+            this,
+            "vpn service entered"
+        )
+
         if (vpnInterface == null) {
 
             VpnManager.setConnecting()
 
             try {
+
+                DebugLog.write(
+                    this,
+                    "building vpn interface"
+                )
+
                 vpnInterface =
                     Builder()
-                        .setSession("V2ray STK")
+                        .setSession(
+                            "V2ray STK"
+                        )
                         .addAddress(
                             "10.0.0.2",
                             24
@@ -40,15 +55,42 @@ class MyVpnService : VpnService() {
                         .establish()
 
                 if (vpnInterface != null) {
-                    Log.d(TAG, "VPN established")
+
+                    DebugLog.write(
+                        this,
+                        "vpn established"
+                    )
+
+                    Log.d(
+                        TAG,
+                        "VPN established"
+                    )
+
                     VpnManager.setConnected()
+
                 } else {
-                    Log.e(TAG, "VPN establish failed")
+
+                    DebugLog.write(
+                        this,
+                        "vpn establish returned null"
+                    )
+
                     VpnManager.setDisconnected()
                 }
 
             } catch (e: Exception) {
-                Log.e(TAG, "VPN error", e)
+
+                DebugLog.write(
+                    this,
+                    "vpn exception: ${e.message}"
+                )
+
+                Log.e(
+                    TAG,
+                    "VPN error",
+                    e
+                )
+
                 VpnManager.setDisconnected()
             }
         }
@@ -57,6 +99,12 @@ class MyVpnService : VpnService() {
     }
 
     override fun onDestroy() {
+
+        DebugLog.write(
+            this,
+            "vpn service destroyed"
+        )
+
         vpnInterface?.close()
         vpnInterface = null
 
