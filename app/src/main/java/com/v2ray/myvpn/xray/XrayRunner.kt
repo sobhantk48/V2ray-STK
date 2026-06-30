@@ -19,46 +19,9 @@ object XrayRunner {
 
             val binary =
                 File(
-                    context.codeCacheDir,
-                    "xray"
+                    context.applicationInfo.nativeLibraryDir,
+                    "libxray.so"
                 )
-
-            if (!binary.exists()) {
-
-                DebugLog.write(
-                    context,
-                    "copying xray binary"
-                )
-
-                context.assets
-                    .open("xray")
-                    .use { input ->
-
-                        binary
-                            .outputStream()
-                            .use { output ->
-
-                                input.copyTo(
-                                    output
-                                )
-                            }
-                    }
-
-                binary.setReadable(
-                    true,
-                    false
-                )
-
-                binary.setExecutable(
-                    true,
-                    false
-                )
-
-                binary.setWritable(
-                    true,
-                    true
-                )
-            }
 
             val config =
                 File(
@@ -68,13 +31,23 @@ object XrayRunner {
 
             DebugLog.write(
                 context,
-                "binary=${binary.absolutePath}"
+                "xray binary = ${binary.absolutePath}"
             )
 
             DebugLog.write(
                 context,
-                "config=${config.absolutePath}"
+                "config file = ${config.absolutePath}"
             )
+
+            if (!binary.exists()) {
+
+                DebugLog.write(
+                    context,
+                    "libxray.so not found"
+                )
+
+                return false
+            }
 
             process =
                 ProcessBuilder(
@@ -107,9 +80,7 @@ object XrayRunner {
                             )
                         }
 
-                } catch (
-                    e: Exception
-                ) {
+                } catch (e: Exception) {
 
                     DebugLog.write(
                         context,
@@ -119,11 +90,14 @@ object XrayRunner {
 
             }.start()
 
+            DebugLog.write(
+                context,
+                "xray process started"
+            )
+
             true
 
-        } catch (
-            e: Exception
-        ) {
+        } catch (e: Exception) {
 
             Log.e(
                 TAG,
@@ -142,7 +116,13 @@ object XrayRunner {
 
     fun stop() {
 
-        process?.destroy()
+        try {
+
+            process?.destroy()
+
+        } catch (_: Exception) {
+        }
+
         process = null
     }
 }
