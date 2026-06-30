@@ -10,78 +10,88 @@ object XrayRunner {
 
     private var process: Process? = null
 
-    fun isRunning(): Boolean {
-        return process?.isAlive == true
-    }
-
     fun start(
         context: Context
     ): Boolean {
 
-        if (isRunning()) {
+        try {
+
+            val xray =
+                File(
+                    context.applicationInfo.nativeLibraryDir,
+                    "libxray.so"
+                )
+
             Log.d(
                 TAG,
-                "xray already running"
-            )
-            return true
-        }
-
-        process = null
-
-        val binary =
-            File(
-                context.applicationInfo.nativeLibraryDir,
-                "libxray.so"
+                "nativeLibraryDir = ${
+                    context.applicationInfo.nativeLibraryDir
+                }"
             )
 
-        val config =
-            File(
-                context.filesDir,
-                "config.json"
-            )
-
-        Log.d(
-            TAG,
-            "xray binary = ${binary.absolutePath}"
-        )
-
-        if (!binary.exists()) {
-
-            Log.e(
+            Log.d(
                 TAG,
-                "libxray.so not found"
+                "exists = ${xray.exists()}"
             )
 
-            return false
-        }
-
-        if (!config.exists()) {
-
-            Log.e(
+            Log.d(
                 TAG,
-                "config.json not found"
+                "canExecute = ${xray.canExecute()}"
             )
 
-            return false
-        }
+            Log.d(
+                TAG,
+                "absolutePath = ${
+                    xray.absolutePath
+                }"
+            )
 
-        return try {
+            Log.d(
+                TAG,
+                "xray binary = ${
+                    xray.absolutePath
+                }"
+            )
+
+            if (!xray.exists()) {
+
+                File(
+                    context.applicationInfo.nativeLibraryDir
+                ).listFiles()?.forEach {
+
+                    Log.d(
+                        TAG,
+                        "native file: ${it.name}"
+                    )
+                }
+
+                Log.e(
+                    TAG,
+                    "libxray.so not found"
+                )
+
+                return false
+            }
+
+            val config =
+                File(
+                    context.filesDir,
+                    "config.json"
+                )
 
             process =
                 ProcessBuilder(
-                    binary.absolutePath,
+                    xray.absolutePath,
+                    "run",
                     "-config",
                     config.absolutePath
                 )
-                    .redirectErrorStream(true)
+                    .redirectErrorStream(
+                        true
+                    )
                     .start()
 
-            Log.d(
-                TAG,
-                "xray started successfully"
-            )
-
-            true
+            return true
 
         } catch (e: Exception) {
 
@@ -91,49 +101,13 @@ object XrayRunner {
                 e
             )
 
-            process = null
-
-            false
+            return false
         }
     }
 
     fun stop() {
 
-        try {
-
-            process?.let {
-
-                if (it.isAlive) {
-
-                    it.destroy()
-
-                    try {
-                        it.waitFor()
-                    } catch (_: Exception) {
-                    }
-
-                    if (it.isAlive) {
-                        it.destroyForcibly()
-                    }
-                }
-            }
-
-        } catch (e: Exception) {
-
-            Log.e(
-                TAG,
-                "stop failed",
-                e
-            )
-
-        } finally {
-
-            process = null
-
-            Log.d(
-                TAG,
-                "xray stopped"
-            )
-        }
+        process?.destroy()
+        process = null
     }
 }
