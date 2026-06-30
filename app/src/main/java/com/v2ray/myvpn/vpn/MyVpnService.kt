@@ -12,6 +12,9 @@ class MyVpnService : VpnService() {
 
     companion object {
         private const val TAG = "V2raySTK"
+
+        const val ACTION_STOP =
+            "com.v2ray.myvpn.STOP_VPN"
     }
 
     private var vpnInterface:
@@ -22,6 +25,37 @@ class MyVpnService : VpnService() {
         flags: Int,
         startId: Int
     ): Int {
+
+        if (
+            intent?.action ==
+            ACTION_STOP
+        ) {
+
+            Log.d(
+                TAG,
+                "stop action received"
+            )
+
+            DebugLog.write(
+                this,
+                "stop action received"
+            )
+
+            try {
+                vpnInterface?.close()
+            } catch (_: Exception) {
+            }
+
+            vpnInterface = null
+
+            stopForeground(
+                STOP_FOREGROUND_REMOVE
+            )
+
+            stopSelf()
+
+            return START_NOT_STICKY
+        }
 
         DebugLog.write(
             this,
@@ -110,7 +144,11 @@ class MyVpnService : VpnService() {
             "vpn revoked"
         )
 
-        vpnInterface?.close()
+        try {
+            vpnInterface?.close()
+        } catch (_: Exception) {
+        }
+
         vpnInterface = null
 
         stopSelf()
@@ -128,7 +166,11 @@ class MyVpnService : VpnService() {
             "vpn service destroyed"
         )
 
-        vpnInterface?.close()
+        try {
+            vpnInterface?.close()
+        } catch (_: Exception) {
+        }
+
         vpnInterface = null
 
         VpnManager.setDisconnected()

@@ -98,8 +98,6 @@ class MainViewModel(
                     )
                 )
 
-                VpnManager.setConnected()
-
             } else {
 
                 Log.e(
@@ -134,11 +132,15 @@ class MainViewModel(
 
         XrayRunner.stop()
 
-        context.stopService(
+        context.startService(
             Intent(
                 context,
                 MyVpnService::class.java
-            )
+            ).apply {
+
+                action =
+                    MyVpnService.ACTION_STOP
+            }
         )
 
         VpnManager.setDisconnecting()
