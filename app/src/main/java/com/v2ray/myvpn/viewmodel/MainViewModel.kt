@@ -1,12 +1,10 @@
 package com.v2ray.myvpn.viewmodel
 
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
-import com.v2ray.myvpn.vpn.MyVpnService
 import com.v2ray.myvpn.vpn.VpnManager
 import com.v2ray.myvpn.xray.AssetExtractor
 import com.v2ray.myvpn.xray.ConfigRepository
@@ -26,6 +24,12 @@ class MainViewModel(
         get() = VpnManager.state
 
     fun toggle() {
+
+        Log.d(
+            TAG,
+            "toggle clicked state=${vpnState.value}"
+        )
+
         when (vpnState.value) {
 
             VpnState.DISCONNECTED -> {
@@ -42,17 +46,27 @@ class MainViewModel(
 
     private fun connect() {
 
+        Log.d(
+            TAG,
+            "connect() entered"
+        )
+
         try {
 
             val context =
                 getApplication<Application>()
+
+            VpnManager.setConnecting()
 
             val config =
                 VlessParser.parse(
                     "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp&sni=google.com#Test"
                 )
 
-            Log.d(TAG, "CONFIG = $config")
+            Log.d(
+                TAG,
+                "CONFIG = $config"
+            )
 
             val json =
                 XrayConfigGenerator.generate(
@@ -64,34 +78,44 @@ class MainViewModel(
                 json
             )
 
+            Log.d(
+                TAG,
+                "config saved"
+            )
+
             if (
                 !AssetExtractor.extractXray(
                     context
                 )
             ) {
-                Log.e(TAG, "xray extraction failed")
+                Log.e(
+                    TAG,
+                    "xray extraction failed"
+                )
+
+                VpnManager.setDisconnected()
                 return
             }
 
             if (
-                XrayRunner.start(
+                !XrayRunner.start(
                     context
                 )
             ) {
 
-                context.startService(
-                    Intent(
-                        context,
-                        MyVpnService::class.java
-                    )
+                Log.e(
+                    TAG,
+                    "xray start failed"
                 )
 
-                VpnManager.setConnected()
-
-            } else {
-
                 VpnManager.setDisconnected()
+                return
             }
+
+            Log.d(
+                TAG,
+                "xray started successfully"
+            )
 
         } catch (e: Exception) {
 
@@ -107,19 +131,13 @@ class MainViewModel(
 
     private fun disconnect() {
 
-        val context =
-            getApplication<Application>()
+        Log.d(
+            TAG,
+            "disconnect() entered"
+        )
 
         XrayRunner.stop()
 
-        context.stopService(
-            Intent(
-                context,
-                MyVpnService::class.java
-            )
-        )
-
-        VpnManager.setDisconnecting()
         VpnManager.setDisconnected()
     }
 }
