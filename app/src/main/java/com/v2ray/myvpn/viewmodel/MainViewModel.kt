@@ -4,12 +4,10 @@ import android.app.Application
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.v2ray.myvpn.DebugLog
 import com.v2ray.myvpn.model.VpnState
 import com.v2ray.myvpn.subscription.VlessParser
 import com.v2ray.myvpn.vpn.MyVpnService
 import com.v2ray.myvpn.vpn.VpnManager
-import com.v2ray.myvpn.xray.AssetExtractor
 import com.v2ray.myvpn.xray.ConfigRepository
 import com.v2ray.myvpn.xray.XrayConfigGenerator
 import com.v2ray.myvpn.xray.XrayRunner
@@ -28,7 +26,10 @@ class MainViewModel(
 
     fun toggle() {
 
-        Log.d(TAG, "toggle clicked")
+        Log.d(
+            TAG,
+            "toggle clicked"
+        )
 
         when (vpnState.value) {
 
@@ -44,25 +45,20 @@ class MainViewModel(
 
     private fun connect() {
 
-        val context =
-            getApplication<Application>()
-
-        DebugLog.write(
-            context,
-            "connect entered"
+        Log.d(
+            TAG,
+            "connect() entered"
         )
 
         try {
+
+            val context =
+                getApplication<Application>()
 
             val config =
                 VlessParser.parse(
                     "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp&sni=google.com#Test"
                 )
-
-            DebugLog.write(
-                context,
-                "config parsed"
-            )
 
             val json =
                 XrayConfigGenerator.generate(
@@ -74,28 +70,14 @@ class MainViewModel(
                 json
             )
 
-            DebugLog.write(
-                context,
-                "config saved"
+            Log.d(
+                TAG,
+                "config.json saved"
             )
 
-            if (
-                !AssetExtractor.extractXray(
-                    context
-                )
-            ) {
-
-                DebugLog.write(
-                    context,
-                    "xray extraction failed"
-                )
-
-                return
-            }
-
-            DebugLog.write(
-                context,
-                "xray extracted"
+            Log.d(
+                TAG,
+                "using bundled libxray.so"
             )
 
             if (
@@ -104,9 +86,9 @@ class MainViewModel(
                 )
             ) {
 
-                DebugLog.write(
-                    context,
-                    "xray started"
+                Log.d(
+                    TAG,
+                    "xray started successfully"
                 )
 
                 context.startService(
@@ -116,17 +98,12 @@ class MainViewModel(
                     )
                 )
 
-                DebugLog.write(
-                    context,
-                    "vpn service start requested"
-                )
-
                 VpnManager.setConnected()
 
             } else {
 
-                DebugLog.write(
-                    context,
+                Log.e(
+                    TAG,
                     "xray start failed"
                 )
 
@@ -134,11 +111,6 @@ class MainViewModel(
             }
 
         } catch (e: Exception) {
-
-            DebugLog.write(
-                context,
-                "connect exception: ${e.message}"
-            )
 
             Log.e(
                 TAG,
@@ -152,13 +124,13 @@ class MainViewModel(
 
     private fun disconnect() {
 
+        Log.d(
+            TAG,
+            "disconnect() entered"
+        )
+
         val context =
             getApplication<Application>()
-
-        DebugLog.write(
-            context,
-            "disconnect entered"
-        )
 
         XrayRunner.stop()
 
@@ -167,11 +139,6 @@ class MainViewModel(
                 context,
                 MyVpnService::class.java
             )
-        )
-
-        DebugLog.write(
-            context,
-            "vpn stopped"
         )
 
         VpnManager.setDisconnecting()

@@ -3,7 +3,6 @@ package com.v2ray.myvpn.xray
 import android.content.Context
 import android.util.Log
 import java.io.File
-import kotlin.concurrent.thread
 
 object XrayRunner {
 
@@ -31,8 +30,8 @@ object XrayRunner {
 
         val binary =
             File(
-                context.filesDir,
-                "xray"
+                context.applicationInfo.nativeLibraryDir,
+                "libxray.so"
             )
 
         val config =
@@ -41,36 +40,32 @@ object XrayRunner {
                 "config.json"
             )
 
-        val logFile =
-            File(
-                context.filesDir,
-                "xray.log"
-            )
-
-        try {
-            logFile.writeText("")
-        } catch (_: Exception) {
-        }
+        Log.d(
+            TAG,
+            "xray binary = ${binary.absolutePath}"
+        )
 
         if (!binary.exists()) {
+
             Log.e(
                 TAG,
-                "xray binary not found"
+                "libxray.so not found"
             )
+
             return false
         }
 
         if (!config.exists()) {
+
             Log.e(
                 TAG,
                 "config.json not found"
             )
+
             return false
         }
 
         return try {
-
-            binary.setExecutable(true)
 
             process =
                 ProcessBuilder(
@@ -81,57 +76,14 @@ object XrayRunner {
                     .redirectErrorStream(true)
                     .start()
 
-            thread {
-
-                try {
-
-                    process
-                        ?.inputStream
-                        ?.bufferedReader()
-                        ?.useLines { lines ->
-
-                            lines.forEach { line ->
-
-                                try {
-                                    logFile.appendText(
-                                        line + "\n"
-                                    )
-                                } catch (_: Exception) {
-                                }
-
-                                Log.d(
-                                    TAG,
-                                    "XRAY: $line"
-                                )
-                            }
-                        }
-
-                } catch (e: Exception) {
-
-                    try {
-                        logFile.appendText(
-                            "LOGGER ERROR: ${e.message}\n"
-                        )
-                    } catch (_: Exception) {
-                    }
-                }
-            }
-
             Log.d(
                 TAG,
-                "xray started"
+                "xray started successfully"
             )
 
             true
 
         } catch (e: Exception) {
-
-            try {
-                logFile.appendText(
-                    "START ERROR: ${e.stackTraceToString()}\n"
-                )
-            } catch (_: Exception) {
-            }
 
             Log.e(
                 TAG,
@@ -153,11 +105,6 @@ object XrayRunner {
 
                 if (it.isAlive) {
 
-                    Log.d(
-                        TAG,
-                        "destroying xray process"
-                    )
-
                     it.destroy()
 
                     try {
@@ -166,18 +113,7 @@ object XrayRunner {
                     }
 
                     if (it.isAlive) {
-
-                        Log.d(
-                            TAG,
-                            "forcing xray process"
-                        )
-
                         it.destroyForcibly()
-
-                        try {
-                            it.waitFor()
-                        } catch (_: Exception) {
-                        }
                     }
                 }
             }
