@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
@@ -29,7 +30,6 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
-
             startService(
                 Intent(
                     this,
@@ -41,7 +41,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
-
         super.onCreate(
             savedInstanceState
         )
@@ -63,7 +62,6 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
 
                     bottomBar = {
-
                         BottomNav(
                             navController,
                             backStack
@@ -79,7 +77,12 @@ class MainActivity : ComponentActivity() {
                             navController,
 
                         startDestination =
-                            Screen.Home.route
+                            Screen.Home.route,
+
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(padding)
                     ) {
 
                         composable(
@@ -121,21 +124,18 @@ class MainActivity : ComponentActivity() {
                         composable(
                             Screen.Profiles.route
                         ) {
-
                             ProfilesScreen()
                         }
 
                         composable(
                             Screen.Logs.route
                         ) {
-
                             LogsScreen()
                         }
 
                         composable(
                             Screen.Settings.route
                         ) {
-
                             SettingsScreen()
                         }
                     }
