@@ -14,64 +14,13 @@ object XrayRunner {
         context: Context
     ): Boolean {
 
-        try {
+        return try {
 
-            val xray =
+            val binary =
                 File(
                     context.applicationInfo.nativeLibraryDir,
                     "libxray.so"
                 )
-
-            Log.d(
-                TAG,
-                "nativeLibraryDir = ${
-                    context.applicationInfo.nativeLibraryDir
-                }"
-            )
-
-            Log.d(
-                TAG,
-                "exists = ${xray.exists()}"
-            )
-
-            Log.d(
-                TAG,
-                "canExecute = ${xray.canExecute()}"
-            )
-
-            Log.d(
-                TAG,
-                "absolutePath = ${
-                    xray.absolutePath
-                }"
-            )
-
-            Log.d(
-                TAG,
-                "xray binary = ${
-                    xray.absolutePath
-                }"
-            )
-
-            if (!xray.exists()) {
-
-                File(
-                    context.applicationInfo.nativeLibraryDir
-                ).listFiles()?.forEach {
-
-                    Log.d(
-                        TAG,
-                        "native file: ${it.name}"
-                    )
-                }
-
-                Log.e(
-                    TAG,
-                    "libxray.so not found"
-                )
-
-                return false
-            }
 
             val config =
                 File(
@@ -79,29 +28,56 @@ object XrayRunner {
                     "config.json"
                 )
 
+            Log.d(
+                TAG,
+                "xray binary = ${binary.absolutePath}"
+            )
+
+            Log.d(
+                TAG,
+                "config file = ${config.absolutePath}"
+            )
+
             process =
                 ProcessBuilder(
-                    xray.absolutePath,
-                    "run",
+                    binary.absolutePath,
                     "-config",
                     config.absolutePath
                 )
-                    .redirectErrorStream(
-                        true
-                    )
+                    .redirectErrorStream(true)
                     .start()
 
-            return true
+            Thread {
+
+                try {
+
+                    process
+                        ?.inputStream
+                        ?.bufferedReader()
+                        ?.forEachLine {
+
+                            Log.d(
+                                TAG,
+                                "XRAY: $it"
+                            )
+                        }
+
+                } catch (_: Exception) {
+                }
+
+            }.start()
+
+            true
 
         } catch (e: Exception) {
 
             Log.e(
                 TAG,
-                "failed to start xray",
+                "xray start exception",
                 e
             )
 
-            return false
+            false
         }
     }
 
