@@ -60,9 +60,9 @@ dependencies {
     implementation(
         "androidx.compose.ui:ui"
     )
-    
+
     implementation(
-    "androidx.compose.foundation:foundation"
+        "androidx.compose.foundation:foundation"
     )
 
     implementation(
@@ -87,6 +87,14 @@ dependencies {
 
     implementation(
         "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
+    )
+
+    implementation(
+        "androidx.datastore:datastore-preferences:1.1.1"
+    )
+
+    implementation(
+        "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1"
     )
 
     debugImplementation(
