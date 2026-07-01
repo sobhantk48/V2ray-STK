@@ -16,6 +16,10 @@ class AdminViewModel(
     private val context =
         application.applicationContext
 
+    companion object {
+        private const val DEFAULT_ADMIN_PASSWORD = "1311"
+    }
+
     private val _loading =
         MutableStateFlow(false)
 
@@ -47,28 +51,24 @@ class AdminViewModel(
 
                     AdminRepository.savePassword(
                         context,
+                        DEFAULT_ADMIN_PASSWORD
+                    )
+                }
+
+                val ok =
+                    AdminRepository.verifyPassword(
+                        context,
                         password
                     )
+
+                if (ok) {
 
                     AdminSession.login()
 
                 } else {
 
-                    val ok =
-                        AdminRepository.verifyPassword(
-                            context,
-                            password
-                        )
-
-                    if (ok) {
-
-                        AdminSession.login()
-
-                    } else {
-
-                        _error.value =
-                            "Wrong password"
-                    }
+                    _error.value =
+                        "Wrong password"
                 }
 
             } catch (_: Exception) {
@@ -78,8 +78,7 @@ class AdminViewModel(
 
             } finally {
 
-                _loading.value =
-                    false
+                _loading.value = false
             }
         }
     }
