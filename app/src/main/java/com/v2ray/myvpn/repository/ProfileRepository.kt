@@ -2,6 +2,7 @@ package com.v2ray.myvpn.repository
 
 import android.content.Context
 import com.v2ray.myvpn.model.Profile
+import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
