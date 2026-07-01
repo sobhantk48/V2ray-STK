@@ -38,11 +38,24 @@ fun AppNavigation() {
     ) {
 
         composable(
-            AppRoutes.SPLASH
-        ) {
-            SplashScreen()
-        }
+         AppRoutes.SPLASH
+    ) {
+          SplashScreen(
 
+             onFinish = {
+
+                  navController.navigate(
+                      AppRoutes.HOME
+                  ) {
+                      popUpTo(
+                          AppRoutes.SPLASH
+                  ) {
+                          inclusive = true
+                 }
+             }
+        }
+    )
+}
         composable(
             AppRoutes.HOME
         ) {
