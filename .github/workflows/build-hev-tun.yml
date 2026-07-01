@@ -1,0 +1,50 @@
+name: Build HEV Tun2Socks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            meson \
+            ninja-build \
+            cmake \
+            pkg-config \
+            build-essential \
+            wget \
+            unzip
+
+      - name: Clone HEV
+        run: |
+          git clone --depth=1 \
+            https://github.com/heiher/hev-socks5-tunnel.git
+
+      - name: Download Android NDK
+        run: |
+          wget -q https://dl.google.com/android/repository/android-ndk-r28b-linux.zip
+          unzip -q android-ndk-r28b-linux.zip
+
+      - name: Build HEV
+        run: |
+          cd hev-socks5-tunnel
+          meson setup build \
+            --cross-file=build-android-arm64.txt \
+            -Dwith-gui=false
+          ninja -C build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hev-tun2socks-arm64
+          path: hev-socks5-tunnel/build
+
