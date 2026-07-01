@@ -1,0 +1,103 @@
+package com.v2ray.myvpn.viewmodel
+
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.v2ray.myvpn.security.AdminRepository
+import com.v2ray.myvpn.security.AdminSession
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class AdminViewModel : ViewModel() {
+
+    private val _loading =
+        MutableStateFlow(false)
+
+    val loading: StateFlow<Boolean>
+        get() = _loading
+
+    private val _error =
+        MutableStateFlow<String?>(null)
+
+    val error: StateFlow<String?>
+        get() = _error
+
+    fun login(
+        context: Context,
+        password: String
+    ) {
+
+        viewModelScope.launch {
+
+            _loading.value = true
+            _error.value = null
+
+            try {
+
+                if (
+                    !AdminRepository.hasPassword(
+                        context
+                    )
+                ) {
+
+                    AdminRepository.savePassword(
+                        context,
+                        password
+                    )
+
+                    AdminSession.login()
+
+                } else {
+
+                    val ok =
+                        AdminRepository.verifyPassword(
+                            context,
+                            password
+                        )
+
+                    if (ok) {
+
+                        AdminSession.login()
+
+                    } else {
+
+                        _error.value =
+                            "Wrong password"
+                    }
+                }
+
+            } catch (_: Exception) {
+
+                _error.value =
+                    "Login failed"
+
+            } finally {
+
+                _loading.value =
+                    false
+            }
+        }
+    }
+
+    fun changePassword(
+        context: Context,
+        password: String
+    ) {
+
+        AdminRepository.savePassword(
+            context,
+            password
+        )
+    }
+
+    fun logout() {
+
+        AdminSession.logout()
+    }
+
+    fun isLoggedIn(): Boolean {
+
+        return AdminSession.isLoggedIn()
+    }
+}

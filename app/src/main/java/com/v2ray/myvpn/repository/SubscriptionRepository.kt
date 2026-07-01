@@ -1,32 +1,120 @@
 package com.v2ray.myvpn.repository
 
-import com.v2ray.myvpn.model.ServerConfig
-import com.v2ray.myvpn.subscription.SubscriptionParser
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.URL
-import java.util.Base64
+import com.v2ray.myvpn.model.Subscription
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import java.util.UUID
 
-class SubscriptionRepository {
+object SubscriptionRepository {
 
-    suspend fun load(url: String): List<ServerConfig> =
-        withContext(Dispatchers.IO) {
+    private val _subscriptions =
+        MutableStateFlow<List<Subscription>>(
+            emptyList()
+        )
 
-            val response =
-                URL(url)
-                    .readText()
+    val subscriptions:
+        StateFlow<List<Subscription>>
+        get() = _subscriptions
 
-            val decoded =
-                try {
-                    String(
-                        Base64
-                            .getDecoder()
-                            .decode(response.trim())
-                    )
-                } catch (_: Exception) {
-                    response
+    fun add(
+        name: String,
+        url: String
+    ) {
+
+        val item =
+            Subscription(
+                id = UUID.randomUUID().toString(),
+                name = name,
+                url = url
+            )
+
+        _subscriptions.value =
+            _subscriptions.value + item
+    }
+
+    fun remove(
+        id: String
+    ) {
+
+        _subscriptions.value =
+            _subscriptions.value.filter {
+                it.id != id
+            }
+    }
+
+    fun update(
+        subscription: Subscription
+    ) {
+
+        _subscriptions.value =
+            _subscriptions.value.map {
+
+                if (
+                    it.id ==
+                    subscription.id
+                ) {
+                    subscription
+                } else {
+                    it
                 }
+            }
+    }
 
-            SubscriptionParser.parse(decoded)
-        }
+    fun enable(
+        id: String,
+        enabled: Boolean
+    ) {
+
+        _subscriptions.value =
+            _subscriptions.value.map {
+
+                if (it.id == id) {
+                    it.copy(
+                        enabled = enabled
+                    )
+                } else {
+                    it
+                }
+            }
+    }
+
+    fun updateInfo(
+        id: String,
+        profilesCount: Int
+    ) {
+
+        _subscriptions.value =
+            _subscriptions.value.map {
+
+                if (it.id == id) {
+
+                    it.copy(
+                        profilesCount =
+                            profilesCount,
+                        lastUpdate =
+                            System.currentTimeMillis()
+                    )
+
+                } else {
+                    it
+                }
+            }
+    }
+
+    fun get(
+        id: String
+    ): Subscription? {
+
+        return _subscriptions
+            .value
+            .find {
+                it.id == id
+            }
+    }
+
+    fun clear() {
+
+        _subscriptions.value =
+            emptyList()
+    }
 }
