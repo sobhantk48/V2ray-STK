@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -16,9 +19,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.icons.Icons
-import androidx.compose.material3.icons.filled.Visibility
-import androidx.compose.material3.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,11 +39,7 @@ import com.v2ray.myvpn.viewmodel.AdminViewModel
 fun AdminLoginScreen(
     onSuccess: () -> Unit = {},
     onBack: () -> Unit = {},
-    vm: AdminViewModel = viewModel(
-factory = ViewModelProvider.AndroidViewModelFactory(
-LocalContext.current.applicationContext as android.app.Application
-)
-)
+    vm: AdminViewModel = viewModel()
 ) {
 
     val loading by vm.loading.collectAsState()
@@ -63,7 +59,6 @@ LocalContext.current.applicationContext as android.app.Application
     }
 
     LaunchedEffect(loggedIn) {
-
         if (loggedIn) {
             onSuccess()
         }
@@ -77,28 +72,21 @@ LocalContext.current.applicationContext as android.app.Application
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement =
-                Arrangement.Center,
-            horizontalAlignment =
-                Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
                 text = "Admin Login",
-                style =
-                    MaterialTheme
-                        .typography
-                        .headlineMedium
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(32.dp)
+                modifier = Modifier.height(32.dp)
             )
 
             OutlinedTextField(
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 value = password,
                 onValueChange = {
                     password = it
@@ -124,34 +112,28 @@ LocalContext.current.applicationContext as android.app.Application
                         Icon(
                             imageVector =
                                 if (showPassword)
-                                    Icons.Default.VisibilityOff
+                                    Icons.Filled.VisibilityOff
                                 else
-                                    Icons.Default.Visibility,
-                            contentDescription =
-                                null
+                                    Icons.Filled.Visibility,
+                            contentDescription = null
                         )
                     }
                 }
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(16.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             error?.let {
 
                 Text(
                     text = it,
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .error
+                    color = MaterialTheme.colorScheme.error
                 )
 
                 Spacer(
-                    modifier =
-                        Modifier.height(16.dp)
+                    modifier = Modifier.height(16.dp)
                 )
             }
 
@@ -162,16 +144,11 @@ LocalContext.current.applicationContext as android.app.Application
             } else {
 
                 Button(
-                    modifier =
-                        Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
 
-                        if (
-                            password.isNotBlank()
-                        ) {
-                            vm.login(
-                                password
-                            )
+                        if (password.isNotBlank()) {
+                            vm.login(password)
                         }
                     }
                 ) {
@@ -183,8 +160,7 @@ LocalContext.current.applicationContext as android.app.Application
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(16.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             TextButton(

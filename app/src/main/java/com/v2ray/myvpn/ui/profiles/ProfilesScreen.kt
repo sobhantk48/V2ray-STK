@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -32,8 +31,7 @@ fun ProfilesScreen(
     vm: ProfileViewModel = viewModel()
 ) {
 
-    val profiles by
-        vm.profiles.collectAsState()
+    val profiles by vm.profiles.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -46,39 +44,27 @@ fun ProfilesScreen(
         ) {
 
             Text(
-                text =
-                    "Profiles (${profiles.size})",
-                style =
-                    MaterialTheme
-                        .typography
-                        .headlineMedium
+                text = "Profiles (${profiles.size})",
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(16.dp)
+                modifier = Modifier.height(16.dp)
             )
 
             LazyColumn(
-                modifier =
-                    Modifier.weight(1f)
+                modifier = Modifier.weight(1f)
             ) {
 
-                items(
-                    profiles
-                ) { profile ->
+                items(profiles) { profile ->
 
                     ProfileCard(
                         profile = profile,
                         onSelect = {
-                            vm.selectProfile(
-                                profile.id
-                            )
+                            vm.selectProfile(profile.id)
                         },
                         onDelete = {
-                            vm.deleteProfile(
-                                profile.id
-                            )
+                            vm.deleteProfile(profile.id)
                         },
                         onEdit = {
                             onEdit(profile)
@@ -88,20 +74,15 @@ fun ProfilesScreen(
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(12.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             Button(
-                modifier =
-                    Modifier.fillMaxWidth(),
-                onClick =
-                    onAdd
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onAdd
             ) {
 
-                Text(
-                    "Add Profile"
-                )
+                Text("Add Profile")
             }
         }
     }
@@ -118,125 +99,77 @@ private fun ProfileCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                bottom = 12.dp
-            )
+            .padding(bottom = 12.dp)
     ) {
 
         Column(
-            modifier =
-                Modifier.padding(
-                    16.dp
-                )
+            modifier = Modifier.padding(16.dp)
         ) {
 
             Text(
                 text = profile.name,
-                style =
-                    MaterialTheme
-                        .typography
-                        .titleLarge
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(4.dp)
+                modifier = Modifier.height(4.dp)
             )
 
             Text(
-                text =
-                    "${profile.host}:${profile.port}"
+                text = "${profile.host}:${profile.port}"
             )
 
             Text(
-                text =
-                    profile.country
+                text = profile.country
             )
 
-            if (
-                profile.selected
-            ) {
+            if (profile.selected) {
 
                 Spacer(
-                    modifier =
-                        Modifier.height(
-                            8.dp
-                        )
+                    modifier = Modifier.height(8.dp)
                 )
 
                 Text(
-                    text =
-                        "ACTIVE",
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .primary
+                    text = "ACTIVE",
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(
-                        16.dp
-                    )
+                modifier = Modifier.height(16.dp)
             )
 
-            Row {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
                 Button(
-                    modifier =
-                        Modifier.weight(
-                            1f
-                        ),
-                    onClick =
-                        onSelect
+                    modifier = Modifier.weight(1f),
+                    onClick = onSelect
                 ) {
-
-                    Text(
-                        "Select"
-                    )
+                    Text("Select")
                 }
 
                 Spacer(
-                    modifier =
-                        Modifier.weight(
-                            0.1f
-                        )
+                    modifier = Modifier.weight(0.1f)
                 )
 
                 Button(
-                    modifier =
-                        Modifier.weight(
-                            1f
-                        ),
-                    onClick =
-                        onEdit
+                    modifier = Modifier.weight(1f),
+                    onClick = onEdit
                 ) {
-
-                    Text(
-                        "Edit"
-                    )
+                    Text("Edit")
                 }
 
                 Spacer(
-                    modifier =
-                        Modifier.weight(
-                            0.1f
-                        )
+                    modifier = Modifier.weight(0.1f)
                 )
 
                 Button(
-                    modifier =
-                        Modifier.weight(
-                            1f
-                        ),
-                    onClick =
-                        onDelete
+                    modifier = Modifier.weight(1f),
+                    onClick = onDelete
                 ) {
-
-                    Text(
-                        "Delete"
-                    )
+                    Text("Delete")
                 }
             }
         }

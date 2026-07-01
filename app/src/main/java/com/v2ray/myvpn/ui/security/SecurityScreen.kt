@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -27,11 +28,7 @@ import com.v2ray.myvpn.viewmodel.AdminViewModel
 @Composable
 fun SecurityScreen(
     onLogout: () -> Unit = {},
-    vm: AdminViewModel = viewModel(
-factory = ViewModelProvider.AndroidViewModelFactory(
-LocalContext.current.applicationContext as android.app.Application
-)
-)
+    vm: AdminViewModel = viewModel()
 ) {
 
     var password by remember {
@@ -128,12 +125,8 @@ LocalContext.current.applicationContext as android.app.Application
                     Modifier.fillMaxWidth(),
                 onClick = {
 
-                    if (
-                        password.isNotBlank()
-                    ) {
-                        vm.changePassword(
-                            password
-                        )
+                    if (password.isNotBlank()) {
+                        vm.changePassword(password)
                     }
                 }
             ) {
