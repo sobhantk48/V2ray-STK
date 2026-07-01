@@ -24,13 +24,10 @@ import com.v2ray.myvpn.ui.subscription.SubscriptionScreen
 @Composable
 fun AppNavigation() {
 
-    val navController =
-        rememberNavController()
+    val navController = rememberNavController()
 
     val adminLoggedIn by
-        AdminSession
-            .loggedIn
-            .collectAsState()
+        AdminSession.loggedIn.collectAsState()
 
     NavHost(
         navController = navController,
@@ -38,28 +35,44 @@ fun AppNavigation() {
     ) {
 
         composable(
-         AppRoutes.SPLASH
-    ) {
-          SplashScreen(
+            AppRoutes.SPLASH
+        ) {
 
-             onFinish = {
+            SplashScreen(
 
-                  navController.navigate(
-                      AppRoutes.HOME
-                  ) {
-                      popUpTo(
-                          AppRoutes.SPLASH
-                  ) {
-                          inclusive = true
-                 }
-             }
+                onFinish = {
+
+                    navController.navigate(
+                        AppRoutes.HOME
+                    ) {
+
+                        popUpTo(
+                            AppRoutes.SPLASH
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
-    )
-}
+
         composable(
             AppRoutes.HOME
         ) {
-            HomeScreen()
+
+            HomeScreen(
+
+                onConnect = {
+                    // TODO
+                },
+
+                onAdmin = {
+
+                    navController.navigate(
+                        AppRoutes.ADMIN_LOGIN
+                    )
+                }
+            )
         }
 
         composable(
@@ -73,6 +86,7 @@ fun AppNavigation() {
                     navController.navigate(
                         AppRoutes.DASHBOARD
                     ) {
+
                         popUpTo(
                             AppRoutes.ADMIN_LOGIN
                         ) {
@@ -168,6 +182,7 @@ fun AppNavigation() {
                         navController.navigate(
                             AppRoutes.HOME
                         ) {
+
                             popUpTo(0)
                         }
                     }
@@ -198,9 +213,7 @@ private fun AdminProtected(
     content: @Composable () -> Unit
 ) {
 
-    LaunchedEffect(
-        loggedIn
-    ) {
+    LaunchedEffect(loggedIn) {
 
         if (!loggedIn) {
 
