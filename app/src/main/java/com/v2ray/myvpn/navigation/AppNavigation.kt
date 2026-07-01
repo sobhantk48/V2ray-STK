@@ -34,18 +34,14 @@ fun AppNavigation() {
         startDestination = AppRoutes.SPLASH
     ) {
 
-        composable(
-            AppRoutes.SPLASH
-        ) {
+        composable(AppRoutes.SPLASH) {
 
             SplashScreen(
-
                 onFinish = {
 
                     navController.navigate(
                         AppRoutes.HOME
                     ) {
-
                         popUpTo(
                             AppRoutes.SPLASH
                         ) {
@@ -56,9 +52,7 @@ fun AppNavigation() {
             )
         }
 
-        composable(
-            AppRoutes.HOME
-        ) {
+        composable(AppRoutes.HOME) {
 
             HomeScreen(
 
@@ -75,9 +69,7 @@ fun AppNavigation() {
             )
         }
 
-        composable(
-            AppRoutes.ADMIN_LOGIN
-        ) {
+        composable(AppRoutes.ADMIN_LOGIN) {
 
             AdminLoginScreen(
 
@@ -101,22 +93,72 @@ fun AppNavigation() {
             )
         }
 
-        composable(
-            AppRoutes.DASHBOARD
-        ) {
+        composable(AppRoutes.DASHBOARD) {
 
             AdminProtected(
                 navController,
                 adminLoggedIn
             ) {
 
-                DashboardScreen()
+                DashboardScreen(
+
+                    onProfiles = {
+
+                        navController.navigate(
+                            AppRoutes.PROFILES
+                        )
+                    },
+
+                    onSubscription = {
+
+                        navController.navigate(
+                            AppRoutes.SUBSCRIPTION
+                        )
+                    },
+
+                    onLogs = {
+
+                        navController.navigate(
+                            AppRoutes.LOGS
+                        )
+                    },
+
+                    onSettings = {
+
+                        navController.navigate(
+                            AppRoutes.SETTINGS
+                        )
+                    },
+
+                    onSecurity = {
+
+                        navController.navigate(
+                            AppRoutes.SECURITY
+                        )
+                    },
+
+                    onAbout = {
+
+                        navController.navigate(
+                            AppRoutes.ABOUT
+                        )
+                    },
+
+                    onLogout = {
+
+                        AdminSession.logout()
+
+                        navController.navigate(
+                            AppRoutes.HOME
+                        ) {
+                            popUpTo(0)
+                        }
+                    }
+                )
             }
         }
 
-        composable(
-            AppRoutes.PROFILES
-        ) {
+        composable(AppRoutes.PROFILES) {
 
             AdminProtected(
                 navController,
@@ -127,9 +169,7 @@ fun AppNavigation() {
             }
         }
 
-        composable(
-            AppRoutes.EDIT_PROFILE
-        ) {
+        composable(AppRoutes.EDIT_PROFILE) {
 
             AdminProtected(
                 navController,
@@ -140,9 +180,7 @@ fun AppNavigation() {
             }
         }
 
-        composable(
-            AppRoutes.SUBSCRIPTION
-        ) {
+        composable(AppRoutes.SUBSCRIPTION) {
 
             AdminProtected(
                 navController,
@@ -153,9 +191,7 @@ fun AppNavigation() {
             }
         }
 
-        composable(
-            AppRoutes.LOGS
-        ) {
+        composable(AppRoutes.LOGS) {
 
             AdminProtected(
                 navController,
@@ -166,9 +202,7 @@ fun AppNavigation() {
             }
         }
 
-        composable(
-            AppRoutes.SECURITY
-        ) {
+        composable(AppRoutes.SECURITY) {
 
             AdminProtected(
                 navController,
@@ -179,10 +213,11 @@ fun AppNavigation() {
 
                     onLogout = {
 
+                        AdminSession.logout()
+
                         navController.navigate(
                             AppRoutes.HOME
                         ) {
-
                             popUpTo(0)
                         }
                     }
@@ -190,16 +225,12 @@ fun AppNavigation() {
             }
         }
 
-        composable(
-            AppRoutes.SETTINGS
-        ) {
+        composable(AppRoutes.SETTINGS) {
 
             SettingsScreen()
         }
 
-        composable(
-            AppRoutes.ABOUT
-        ) {
+        composable(AppRoutes.ABOUT) {
 
             AboutScreen()
         }
