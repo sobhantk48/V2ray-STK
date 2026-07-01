@@ -1,5 +1,8 @@
 package com.v2ray.myvpn.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Profile(
 
     val id: String,
