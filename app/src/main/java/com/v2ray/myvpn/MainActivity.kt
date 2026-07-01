@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.v2ray.myvpn.navigation.AppNavigation
+import com.v2ray.myvpn.repository.ProfileRepository
 
 class MainActivity : ComponentActivity() {
 
@@ -12,6 +13,10 @@ class MainActivity : ComponentActivity() {
     ) {
         super.onCreate(
             savedInstanceState
+        )
+
+        ProfileRepository.initialize(
+            applicationContext
         )
 
         setContent {
