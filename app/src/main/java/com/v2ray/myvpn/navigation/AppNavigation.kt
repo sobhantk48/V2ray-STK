@@ -57,7 +57,6 @@ fun AppNavigation() {
             HomeScreen(
 
                 onConnect = {
-                    // TODO
                 },
 
                 onAdmin = {
@@ -88,6 +87,7 @@ fun AppNavigation() {
                 },
 
                 onBack = {
+
                     navController.popBackStack()
                 }
             )
@@ -165,7 +165,22 @@ fun AppNavigation() {
                 adminLoggedIn
             ) {
 
-                ProfilesScreen()
+                ProfilesScreen(
+
+                    onAdd = {
+
+                        navController.navigate(
+                            AppRoutes.EDIT_PROFILE
+                        )
+                    },
+
+                    onEdit = { _ ->
+
+                        navController.navigate(
+                            AppRoutes.EDIT_PROFILE
+                        )
+                    }
+                )
             }
         }
 
@@ -176,7 +191,18 @@ fun AppNavigation() {
                 adminLoggedIn
             ) {
 
-                EditProfileScreen()
+                EditProfileScreen(
+
+                    onSaved = {
+
+                        navController.popBackStack()
+                    },
+
+                    onCancel = {
+
+                        navController.popBackStack()
+                    }
+                )
             }
         }
 

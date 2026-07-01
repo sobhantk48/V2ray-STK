@@ -21,22 +21,19 @@ fun SplashScreen(
 ) {
 
     LaunchedEffect(Unit) {
-
         delay(1500)
-
         onFinish()
     }
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement =
-            Arrangement.Center,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment =
             Alignment.CenterHorizontally
     ) {
 
         Text(
-            text = "MyXrayVPN",
+            text = "V2ray STK",
             style =
                 MaterialTheme
                     .typography
