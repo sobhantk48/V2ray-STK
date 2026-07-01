@@ -1,5 +1,6 @@
 package com.v2ray.myvpn.ui.admin
 
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.v2ray.myvpn.security.AdminSession
 import com.v2ray.myvpn.viewmodel.AdminViewModel
@@ -39,16 +42,16 @@ import com.v2ray.myvpn.viewmodel.AdminViewModel
 fun AdminLoginScreen(
     onSuccess: () -> Unit = {},
     onBack: () -> Unit = {},
-    vm: AdminViewModel = viewModel()
+    vm: AdminViewModel = viewModel(
+        factory = ViewModelProvider.AndroidViewModelFactory(
+            LocalContext.current.applicationContext as Application
+        )
+    )
 ) {
 
     val loading by vm.loading.collectAsState()
     val error by vm.error.collectAsState()
-
-    val loggedIn by
-        AdminSession
-            .loggedIn
-            .collectAsState()
+    val loggedIn by AdminSession.loggedIn.collectAsState()
 
     var password by remember {
         mutableStateOf("")
@@ -104,17 +107,16 @@ fun AdminLoginScreen(
 
                     IconButton(
                         onClick = {
-                            showPassword =
-                                !showPassword
+                            showPassword = !showPassword
                         }
                     ) {
 
                         Icon(
                             imageVector =
                                 if (showPassword)
-                                    Icons.Filled.VisibilityOff
+                                    Icons.Default.VisibilityOff
                                 else
-                                    Icons.Filled.Visibility,
+                                    Icons.Default.Visibility,
                             contentDescription = null
                         )
                     }
@@ -146,16 +148,13 @@ fun AdminLoginScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-
                         if (password.isNotBlank()) {
                             vm.login(password)
                         }
                     }
                 ) {
 
-                    Text(
-                        "Login"
-                    )
+                    Text("Login")
                 }
             }
 
@@ -167,9 +166,7 @@ fun AdminLoginScreen(
                 onClick = onBack
             ) {
 
-                Text(
-                    "Back"
-                )
+                Text("Back")
             }
         }
     }

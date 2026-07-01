@@ -1,7 +1,7 @@
 package com.v2ray.myvpn.viewmodel
 
-import android.content.Context
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.v2ray.myvpn.security.AdminRepository
 import com.v2ray.myvpn.security.AdminSession
@@ -9,7 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AdminViewModel : ViewModel() {
+class AdminViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+
+    private val context =
+        application.applicationContext
 
     private val _loading =
         MutableStateFlow(false)
@@ -24,7 +29,6 @@ class AdminViewModel : ViewModel() {
         get() = _error
 
     fun login(
-        context: Context,
         password: String
     ) {
 
@@ -81,7 +85,6 @@ class AdminViewModel : ViewModel() {
     }
 
     fun changePassword(
-        context: Context,
         password: String
     ) {
 
