@@ -187,6 +187,10 @@ fun EditProfileScreen(
                 modifier =
                     Modifier.fillMaxWidth(),
                 onClick = {
+		    android.util.Log.e(
+ 		        "MYXRAY",
+   		        "SAVE BUTTON CLICKED"
+		  )
 
                     if (profile == null) {
 

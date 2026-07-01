@@ -1,12 +1,31 @@
 package com.v2ray.myvpn.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.v2ray.myvpn.model.Profile
 import com.v2ray.myvpn.repository.ProfileRepository
-import kotlinx.coroutines.flow.StateFlow
 import java.util.UUID
+import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 
 class ProfileViewModel : ViewModel() {
+
+    companion object {
+
+        private fun writeLog(text: String) {
+            try {
+                val file =
+                    File(
+                        "/storage/emulated/0/MyXrayVPN_profile.log"
+                    )
+
+                file.appendText(
+                    "${System.currentTimeMillis()} : $text\n"
+                )
+            } catch (_: Exception) {
+            }
+        }
+    }
 
     val profiles: StateFlow<List<Profile>>
         get() = ProfileRepository.profiles
@@ -23,6 +42,8 @@ class ProfileViewModel : ViewModel() {
         path: String = ""
     ) {
 
+        writeLog("addProfile called")
+
         val profile =
             Profile(
                 id = UUID.randomUUID().toString(),
@@ -37,52 +58,48 @@ class ProfileViewModel : ViewModel() {
                 path = path
             )
 
-        ProfileRepository.add(
-            profile
+        writeLog(
+            "created profile = ${profile.name}"
+        )
+
+        ProfileRepository.add(profile)
+
+        writeLog(
+            "repository count = ${ProfileRepository.count()}"
         )
     }
 
     fun updateProfile(
         profile: Profile
     ) {
-
-        ProfileRepository.update(
-            profile
-        )
+        writeLog("update profile")
+        ProfileRepository.update(profile)
     }
 
     fun deleteProfile(
         profileId: String
     ) {
-
-        ProfileRepository.delete(
-            profileId
-        )
+        writeLog("delete profile")
+        ProfileRepository.delete(profileId)
     }
 
     fun selectProfile(
         profileId: String
     ) {
-
-        ProfileRepository.select(
-            profileId
-        )
+        writeLog("select profile")
+        ProfileRepository.select(profileId)
     }
 
     fun getSelected(): Profile? {
-
-        return ProfileRepository
-            .getSelected()
+        return ProfileRepository.getSelected()
     }
 
     fun profileCount(): Int {
-
-        return ProfileRepository
-            .count()
+        return ProfileRepository.count()
     }
 
     fun clearProfiles() {
-
+        writeLog("clear profiles")
         ProfileRepository.clear()
     }
 }
