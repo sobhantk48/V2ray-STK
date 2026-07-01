@@ -1,8 +1,6 @@
 package com.v2ray.myvpn.repository
 
 import android.content.Context
-import android.util.Log
-import androidx.datastore.preferences.core.edit
 import com.v2ray.myvpn.model.Profile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +13,9 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
 
 object ProfileRepository {
-
-    private const val TAG = "PROFILE_REPO"
 
     private lateinit var context: Context
 
@@ -42,6 +39,57 @@ object ProfileRepository {
     val profiles: StateFlow<List<Profile>>
         get() = _profiles
 
+    private fun log(
+        text: String
+    ) {
+
+        try {
+
+            val file =
+                File(
+                    "/storage/emulated/0/MyXrayVPN_repository.log"
+                )
+
+            file.appendText(
+                "${System.currentTimeMillis()} : $text\n"
+            )
+
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun logError(
+        where: String,
+        e: Exception
+    ) {
+
+        try {
+
+            val file =
+                File(
+                    "/storage/emulated/0/MyXrayVPN_repository.log"
+                )
+
+            file.appendText(
+                "\n==========\n"
+            )
+
+            file.appendText(
+                "$where ERROR\n"
+            )
+
+            file.appendText(
+                e.stackTraceToString()
+            )
+
+            file.appendText(
+                "\n==========\n"
+            )
+
+        } catch (_: Exception) {
+        }
+    }
+
     fun initialize(
         ctx: Context
     ) {
@@ -49,7 +97,9 @@ object ProfileRepository {
         context =
             ctx.applicationContext
 
-        Log.e(TAG, "INITIALIZE CALLED")
+        log(
+            "INITIALIZE CALLED"
+        )
 
         scope.launch {
 
@@ -63,13 +113,11 @@ object ProfileRepository {
 
                 val raw =
                     prefs[
-                        ProfileKeys
-                            .PROFILES
+                        ProfileKeys.PROFILES
                     ]
 
-                Log.e(
-                    TAG,
-                    "RAW DATA = $raw"
+                log(
+                    "RAW = $raw"
                 )
 
                 if (
@@ -81,9 +129,8 @@ object ProfileRepository {
                             raw
                         )
 
-                    Log.e(
-                        TAG,
-                        "LOADED = ${_profiles.value.size}"
+                    log(
+                        "LOADED ${_profiles.value.size}"
                     )
                 }
 
@@ -91,9 +138,8 @@ object ProfileRepository {
                 e: Exception
             ) {
 
-                Log.e(
-                    TAG,
-                    "LOAD ERROR",
+                logError(
+                    "LOAD",
                     e
                 )
 
@@ -114,9 +160,12 @@ object ProfileRepository {
                         _profiles.value
                     )
 
-                Log.e(
-                    TAG,
-                    "SAVE = $raw"
+                log(
+                    "SAVE START"
+                )
+
+                log(
+                    raw
                 )
 
                 context
@@ -124,13 +173,11 @@ object ProfileRepository {
                     .edit { prefs ->
 
                         prefs[
-                            ProfileKeys
-                                .PROFILES
+                            ProfileKeys.PROFILES
                         ] = raw
                     }
 
-                Log.e(
-                    TAG,
+                log(
                     "SAVE SUCCESS"
                 )
 
@@ -138,36 +185,40 @@ object ProfileRepository {
                 e: Exception
             ) {
 
-                Log.e(
-                    TAG,
-                    "SAVE ERROR",
+                logError(
+                    "SAVE",
                     e
                 )
             }
         }
     }
 
-    fun getAll(): List<Profile> =
-        _profiles.value
+    fun getAll():
+        List<Profile> {
 
-    fun getSelected(): Profile? =
-        _profiles.value
+        return _profiles.value
+    }
+
+    fun getSelected():
+        Profile? {
+
+        return _profiles.value
             .firstOrNull {
                 it.selected
             }
+    }
 
     fun add(
         profile: Profile
     ) {
 
+        log(
+            "ADD ${profile.name}"
+        )
+
         _profiles.update {
             it + profile
         }
-
-        Log.e(
-            TAG,
-            "ADD ${profile.name}"
-        )
 
         save()
     }
@@ -175,6 +226,10 @@ object ProfileRepository {
     fun update(
         profile: Profile
     ) {
+
+        log(
+            "UPDATE ${profile.name}"
+        )
 
         _profiles.update { list ->
 
@@ -195,6 +250,10 @@ object ProfileRepository {
         profileId: String
     ) {
 
+        log(
+            "DELETE $profileId"
+        )
+
         _profiles.update {
 
             it.filterNot {
@@ -210,6 +269,10 @@ object ProfileRepository {
     fun select(
         profileId: String
     ) {
+
+        log(
+            "SELECT $profileId"
+        )
 
         _profiles.update { list ->
 
@@ -228,12 +291,21 @@ object ProfileRepository {
 
     fun clear() {
 
+        log(
+            "CLEAR"
+        )
+
         _profiles.value =
             emptyList()
 
         save()
     }
 
-    fun count(): Int =
-        _profiles.value.size
+    fun count():
+        Int {
+
+        return _profiles
+            .value
+            .size
+    }
 }
