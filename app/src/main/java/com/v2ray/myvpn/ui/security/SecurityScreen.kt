@@ -55,40 +55,31 @@ fun SecurityScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement =
-                Arrangement.Top
+            verticalArrangement = Arrangement.Top
         ) {
 
             Text(
                 text = "Security",
-                style =
-                    MaterialTheme
-                        .typography
-                        .headlineMedium
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp)
             )
 
             OutlinedTextField(
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 value = password,
                 onValueChange = {
                     password = it
                 },
                 label = {
-                    Text(
-                        "Admin Password"
-                    )
+                    Text("Admin Password")
                 }
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(24.dp)
+                modifier = Modifier.height(24.dp)
             )
 
             SecuritySwitch(
@@ -116,45 +107,32 @@ fun SecurityScreen(
             )
 
             Spacer(
-                modifier =
-                    Modifier.height(32.dp)
+                modifier = Modifier.height(32.dp)
             )
 
             Button(
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
-
                     if (password.isNotBlank()) {
                         vm.changePassword(password)
                     }
                 }
             ) {
-
-                Text(
-                    "Save Password"
-                )
+                Text("Save Password")
             }
 
             Spacer(
-                modifier =
-                    Modifier.height(12.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             Button(
-                modifier =
-                    Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
-
                     vm.logout()
-
                     onLogout()
                 }
             ) {
-
-                Text(
-                    "Logout Admin"
-                )
+                Text("Logout Admin")
             }
         }
     }
@@ -170,21 +148,17 @@ private fun SecuritySwitch(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 8.dp
-            )
+            .padding(vertical = 8.dp)
     ) {
 
         Text(
             text = title,
-            modifier =
-                Modifier.weight(1f)
+            modifier = Modifier.weight(1f)
         )
 
         Switch(
             checked = checked,
-            onCheckedChange =
-                onChange
+            onCheckedChange = onChange
         )
     }
 }

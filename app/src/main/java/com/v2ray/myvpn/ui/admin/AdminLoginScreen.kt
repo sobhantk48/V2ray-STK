@@ -8,12 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -51,6 +47,7 @@ fun AdminLoginScreen(
 
     val loading by vm.loading.collectAsState()
     val error by vm.error.collectAsState()
+
     val loggedIn by AdminSession.loggedIn.collectAsState()
 
     var password by remember {
@@ -111,13 +108,11 @@ fun AdminLoginScreen(
                         }
                     ) {
 
-                        Icon(
-                            imageVector =
-                                if (showPassword)
-                                    Icons.Default.VisibilityOff
-                                else
-                                    Icons.Default.Visibility,
-                            contentDescription = null
+                        Text(
+                            if (showPassword)
+                                "🙈"
+                            else
+                                "👁"
                         )
                     }
                 }
@@ -148,13 +143,16 @@ fun AdminLoginScreen(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
+
                         if (password.isNotBlank()) {
                             vm.login(password)
                         }
                     }
                 ) {
 
-                    Text("Login")
+                    Text(
+                        "Login"
+                    )
                 }
             }
 
@@ -166,7 +164,9 @@ fun AdminLoginScreen(
                 onClick = onBack
             ) {
 
-                Text("Back")
+                Text(
+                    "Back"
+                )
             }
         }
     }
