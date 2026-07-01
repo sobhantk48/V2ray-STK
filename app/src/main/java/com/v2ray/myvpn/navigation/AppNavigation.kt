@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,11 +21,15 @@ import com.v2ray.myvpn.ui.security.SecurityScreen
 import com.v2ray.myvpn.ui.settings.SettingsScreen
 import com.v2ray.myvpn.ui.splash.SplashScreen
 import com.v2ray.myvpn.ui.subscription.SubscriptionScreen
+import com.v2ray.myvpn.viewmodel.ProfileViewModel
 
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
+
+    // فقط یک ProfileViewModel برای کل برنامه
+    val profileViewModel: ProfileViewModel = viewModel()
 
     val adminLoggedIn by
         AdminSession.loggedIn.collectAsState()
@@ -167,6 +172,8 @@ fun AppNavigation() {
 
                 ProfilesScreen(
 
+                    vm = profileViewModel,
+
                     onAdd = {
 
                         navController.navigate(
@@ -192,6 +199,8 @@ fun AppNavigation() {
             ) {
 
                 EditProfileScreen(
+
+                    vm = profileViewModel,
 
                     onSaved = {
 
