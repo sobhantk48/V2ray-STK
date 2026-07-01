@@ -30,27 +30,14 @@ fun SecurityScreen(
     onLogout: () -> Unit = {},
     vm: AdminViewModel = viewModel()
 ) {
-
-    var password by remember {
-        mutableStateOf("")
-    }
-
-    var adminEnabled by remember {
-        mutableStateOf(true)
-    }
-
-    var exportLocked by remember {
-        mutableStateOf(true)
-    }
-
-    var shareLocked by remember {
-        mutableStateOf(true)
-    }
+    var password by remember { mutableStateOf("") }
+    var adminEnabled by remember { mutableStateOf(true) }
+    var exportLocked by remember { mutableStateOf(true) }
+    var shareLocked by remember { mutableStateOf(true) }
 
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -70,9 +57,7 @@ fun SecurityScreen(
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
-                onValueChange = {
-                    password = it
-                },
+                onValueChange = { password = it },
                 label = {
                     Text("Admin Password")
                 }
@@ -85,25 +70,19 @@ fun SecurityScreen(
             SecuritySwitch(
                 title = "Admin Mode",
                 checked = adminEnabled,
-                onChange = {
-                    adminEnabled = it
-                }
+                onChange = { adminEnabled = it }
             )
 
             SecuritySwitch(
                 title = "Lock Export",
                 checked = exportLocked,
-                onChange = {
-                    exportLocked = it
-                }
+                onChange = { exportLocked = it }
             )
 
             SecuritySwitch(
                 title = "Lock Share",
                 checked = shareLocked,
-                onChange = {
-                    shareLocked = it
-                }
+                onChange = { shareLocked = it }
             )
 
             Spacer(
@@ -144,13 +123,11 @@ private fun SecuritySwitch(
     checked: Boolean,
     onChange: (Boolean) -> Unit
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
     ) {
-
         Text(
             text = title,
             modifier = Modifier.weight(1f)
