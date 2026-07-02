@@ -1,24 +1,14 @@
 package com.v2ray.myvpn.ui.profiles
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.v2ray.myvpn.model.Profile
@@ -33,8 +23,10 @@ fun ProfilesScreen(
 
     val profiles by vm.profiles.collectAsState()
 
-    Surface(
-        modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
 
         Column(
@@ -45,43 +37,35 @@ fun ProfilesScreen(
 
             Text(
                 text = "Profiles (${profiles.size})",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
+            Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(bottom = 100.dp) // جلوگیری از زیر nav bar
             ) {
 
                 items(profiles) { profile ->
 
                     ProfileCard(
                         profile = profile,
-                        onSelect = {
-                            vm.selectProfile(profile.id)
-                        },
-                        onDelete = {
-                            vm.deleteProfile(profile.id)
-                        },
-                        onEdit = {
-                            onEdit(profile)
-                        }
+                        onSelect = { vm.selectProfile(profile.id) },
+                        onDelete = { vm.deleteProfile(profile.id) },
+                        onEdit = { onEdit(profile) }
                     )
                 }
             }
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
+            // 🔵 دکمه Add (دیگه زیر Nav نمی‌ره)
             Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onAdd
+                onClick = onAdd,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp)
             ) {
-
                 Text("Add Profile")
             }
         }
@@ -96,81 +80,90 @@ private fun ProfileCard(
     onEdit: () -> Unit
 ) {
 
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 12.dp)
+            .padding(bottom = 12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF111827)
+        )
     ) {
 
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(
-                text = profile.name,
-                style = MaterialTheme.typography.titleLarge
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
+                Column(modifier = Modifier.weight(1f)) {
 
-            Text(
-                text = "${profile.host}:${profile.port}"
-            )
+                    Text(
+                        text = profile.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
 
-            Text(
-                text = profile.country
-            )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "${profile.host}:${profile.port}",
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+
+                    Text(
+                        text = profile.country,
+                        color = Color.Gray
+                    )
+                }
+
+                Box {
+
+                    TextButton(onClick = { menuExpanded = true }) {
+                        Text("⋮", color = Color.White)
+                    }
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+
+                        DropdownMenuItem(
+                            text = { Text("Select") },
+                            onClick = {
+                                onSelect()
+                                menuExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {
+                                onEdit()
+                                menuExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Delete") },
+                            onClick = {
+                                onDelete()
+                                menuExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             if (profile.selected) {
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "ACTIVE",
                     color = MaterialTheme.colorScheme.primary
                 )
-            }
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = onSelect
-                ) {
-                    Text("Select")
-                }
-
-                Spacer(
-                    modifier = Modifier.weight(0.1f)
-                )
-
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = onEdit
-                ) {
-                    Text("Edit")
-                }
-
-                Spacer(
-                    modifier = Modifier.weight(0.1f)
-                )
-
-                Button(
-                    modifier = Modifier.weight(1f),
-                    onClick = onDelete
-                ) {
-                    Text("Delete")
-                }
             }
         }
     }
