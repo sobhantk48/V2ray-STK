@@ -25,10 +25,8 @@ fun AppNavigation() {
     val context = LocalContext.current
     val mainViewModel: MainViewModel = viewModel()
 
-    // وضعیت لاگین ادمین
     val adminLoggedIn by AdminSession.loggedIn.collectAsState()
 
-    // شروع از Splash
     NavHost(
         navController = navController,
         startDestination = AppRoutes.SPLASH

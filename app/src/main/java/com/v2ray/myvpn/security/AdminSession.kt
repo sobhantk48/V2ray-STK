@@ -10,17 +10,10 @@ object AdminSession {
     private val _loggedIn = MutableStateFlow(false)
     val loggedIn: StateFlow<Boolean> = _loggedIn
 
-    fun validatePassword(input: String): Boolean {
-        return input == currentPassword
-    }
+    fun validatePassword(input: String): Boolean = input == currentPassword
 
-    fun login() {
-        _loggedIn.value = true
-    }
-
-    fun logout() {
-        _loggedIn.value = false
-    }
+    fun login() { _loggedIn.value = true }
+    fun logout() { _loggedIn.value = false }
 
     fun changePassword(oldPassword: String, newPassword: String): Boolean {
         return if (oldPassword == currentPassword) {

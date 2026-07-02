@@ -6,56 +6,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.v2ray.myvpn.navigation.AppNavigation
 import com.v2ray.myvpn.repository.ProfileRepository
+import com.v2ray.myvpn.ui.theme.MyVPNTheme
 import java.io.File
 
 class MainActivity : ComponentActivity() {
 
     private fun writeLog(text: String) {
         try {
-            val file =
-                File(
-                    filesDir,
-                    "startup.log"
-                )
-
-            file.appendText(
-                "${System.currentTimeMillis()} : $text\n"
-            )
-
-            Log.d(
-                "MYVPN",
-                text
-            )
-
-        } catch (_: Exception) {
-        }
+            val file = File(filesDir, "startup.log")
+            file.appendText("${System.currentTimeMillis()} : $text\n")
+            Log.d("MYVPN", text)
+        } catch (_: Exception) {}
     }
 
-    override fun onCreate(
-        savedInstanceState: Bundle?
-    ) {
-        super.onCreate(
-            savedInstanceState
-        )
-
-        writeLog(
-            "MainActivity started"
-        )
-
-        ProfileRepository.initialize(
-            applicationContext
-        )
-
-        writeLog(
-            "ProfileRepository initialized"
-        )
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        writeLog("MainActivity started")
+        ProfileRepository.initialize(applicationContext)
+        writeLog("ProfileRepository initialized")
         setContent {
-            AppNavigation()
+            MyVPNTheme {
+                AppNavigation()
+            }
         }
-
-        writeLog(
-            "Compose loaded"
-        )
+        writeLog("Compose loaded")
     }
 }
