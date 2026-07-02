@@ -1,15 +1,8 @@
 package com.v2ray.myvpn.navigation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-
+import androidx.navigation.compose.*
 import com.v2ray.myvpn.security.AdminSession
 import com.v2ray.myvpn.ui.about.AboutScreen
 import com.v2ray.myvpn.ui.admin.AdminLoginScreen
@@ -28,6 +21,7 @@ import com.v2ray.myvpn.viewmodel.ProfileViewModel
 fun AppNavigation() {
 
     val navController = rememberNavController()
+
     val profileViewModel: ProfileViewModel = viewModel()
 
     val adminLoggedIn by AdminSession.loggedIn.collectAsState()
@@ -63,33 +57,20 @@ fun AppNavigation() {
                         popUpTo(AppRoutes.ADMIN_LOGIN) { inclusive = true }
                     }
                 },
-                onBack = {
-                    navController.popBackStack()
-                }
+                onBack = { navController.popBackStack() }
             )
         }
 
         composable(AppRoutes.DASHBOARD) {
+
             AdminProtected(navController, adminLoggedIn) {
                 DashboardScreen(
-                    onProfiles = {
-                        navController.navigate(AppRoutes.PROFILES)
-                    },
-                    onSubscription = {
-                        navController.navigate(AppRoutes.SUBSCRIPTION)
-                    },
-                    onLogs = {
-                        navController.navigate(AppRoutes.LOGS)
-                    },
-                    onSettings = {
-                        navController.navigate(AppRoutes.SETTINGS)
-                    },
-                    onSecurity = {
-                        navController.navigate(AppRoutes.SECURITY)
-                    },
-                    onAbout = {
-                        navController.navigate(AppRoutes.ABOUT)
-                    },
+                    onProfiles = { navController.navigate(AppRoutes.PROFILES) },
+                    onSubscription = { navController.navigate(AppRoutes.SUBSCRIPTION) },
+                    onLogs = { navController.navigate(AppRoutes.LOGS) },
+                    onSettings = { navController.navigate(AppRoutes.SETTINGS) },
+                    onSecurity = { navController.navigate(AppRoutes.SECURITY) },
+                    onAbout = { navController.navigate(AppRoutes.ABOUT) },
                     onLogout = {
                         AdminSession.logout()
                         navController.navigate(AppRoutes.HOME) {
@@ -101,7 +82,9 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.PROFILES) {
+
             AdminProtected(navController, adminLoggedIn) {
+
                 ProfilesScreen(
                     vm = profileViewModel,
                     onAdd = {
@@ -115,15 +98,13 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.EDIT_PROFILE) {
+
             AdminProtected(navController, adminLoggedIn) {
+
                 EditProfileScreen(
                     vm = profileViewModel,
-                    onSaved = {
-                        navController.popBackStack()
-                    },
-                    onCancel = {
-                        navController.popBackStack()
-                    }
+                    onSaved = { navController.popBackStack() },
+                    onCancel = { navController.popBackStack() }
                 )
             }
         }
@@ -175,7 +156,5 @@ private fun AdminProtected(
         }
     }
 
-    if (loggedIn) {
-        content()
-    }
+    if (loggedIn) content()
 }

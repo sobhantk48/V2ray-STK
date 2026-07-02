@@ -5,12 +5,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.v2ray.myvpn.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfilesScreen(
-    profiles: List<Any> = emptyList(),
-    onAdd: () -> Unit = {}
+    vm: ProfileViewModel,
+    onAdd: () -> Unit,
+    onEdit: (String) -> Unit
 ) {
+    val profiles by vm.profiles.collectAsState()
 
     Scaffold(
         floatingActionButton = {
@@ -24,7 +27,7 @@ fun ProfilesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(bottom = 70.dp) // 👈 مهم
+                .padding(16.dp)
         ) {
 
             Text(
@@ -35,7 +38,40 @@ fun ProfilesScreen(
             Spacer(Modifier.height(16.dp))
 
             if (profiles.isEmpty()) {
-                Text("No profiles yet", color = MaterialTheme.colorScheme.onBackground)
+                Text("No profiles yet")
+            } else {
+                profiles.forEach { profile ->
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            Text(profile.name)
+
+                            Row {
+                                TextButton(
+                                    onClick = { onEdit(profile.id) }
+                                ) {
+                                    Text("Edit")
+                                }
+
+                                TextButton(
+                                    onClick = { vm.delete(profile.id) }
+                                ) {
+                                    Text("Delete")
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
