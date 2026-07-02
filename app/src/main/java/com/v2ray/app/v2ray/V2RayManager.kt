@@ -15,47 +15,36 @@ class V2RayManager(private val context: Context) {
         try {
             if (running) return@withContext Result.success(Unit)
 
-            val assetsDir = File(context.filesDir, "assets")
+            // استفاده از cacheDir برای کپی فایل باینری (دسترسی نوشتن آسان‌تر)
+            val cacheDir = context.cacheDir
+            val assetsDir = File(cacheDir, "assets")
             if (!assetsDir.exists()) assetsDir.mkdirs()
 
-            // کپی فایل‌ها
+            // کپی فایل‌ها از assets برنامه به cacheDir
             copyAssetToFile("xray", File(assetsDir, "xray"))
             copyAssetToFile("geoip.dat", File(assetsDir, "geoip.dat"))
             copyAssetToFile("geosite.dat", File(assetsDir, "geosite.dat"))
 
             val xrayFile = File(assetsDir, "xray")
             if (!xrayFile.exists()) {
-                return@withContext Result.failure(Exception("Xray binary not found in assets"))
+                return@withContext Result.failure(Exception("Xray binary not found in cache"))
             }
 
-            // تنظیم مجوز اجرا با روش‌های متعدد
+            // تنظیم مجوزهای کامل
             try {
-                // روش اول: setExecutable
-                xrayFile.setExecutable(true, false)
-                xrayFile.setReadable(true, false)
-                xrayFile.setWritable(true, false)
-
-                // روش دوم: chmod با Runtime.exec
                 val chmodProcess = Runtime.getRuntime().exec(arrayOf("chmod", "777", xrayFile.absolutePath))
                 chmodProcess.waitFor()
-                Logger.writeLog("chmod 777 executed")
-
-                // روش سوم: استفاده از sh -c برای اطمینان
-                val shProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", "chmod 777 ${xrayFile.absolutePath}"))
-                shProcess.waitFor()
-                Logger.writeLog("sh -c chmod executed")
+                Logger.writeLog("chmod 777 executed for ${xrayFile.absolutePath}")
             } catch (e: Exception) {
-                Logger.writeError("Chmod failed", e)
+                Logger.writeError("chmod failed", e)
+                xrayFile.setExecutable(true, false)
             }
 
-            // بررسی مجوز نهایی
-            Logger.writeLog("Final permissions: canExecute=${xrayFile.canExecute()}, canRead=${xrayFile.canRead()}")
-
-            // ذخیره کانفیگ
-            val configFile = File(context.filesDir, "v2ray_config.json")
+            // ذخیره کانفیگ در cacheDir
+            val configFile = File(cacheDir, "v2ray_config.json")
             configFile.writeText(configJson)
 
-            // ساخت دستور با sh -c
+            // ساخت دستور با sh -c (برای اطمینان از اجرا)
             val command = arrayOf(
                 "sh",
                 "-c",
@@ -66,9 +55,9 @@ class V2RayManager(private val context: Context) {
 
             val processBuilder = ProcessBuilder(*command)
             processBuilder.redirectErrorStream(true)
-            processBuilder.directory(context.filesDir)
-            // تنظیم محیط برای اجرا
-            processBuilder.environment()["PATH"] = "${System.getenv("PATH")}:${context.filesDir.absolutePath}/assets"
+            processBuilder.directory(cacheDir)
+            // تنظیم PATH
+            processBuilder.environment()["PATH"] = "${System.getenv("PATH")}:${cacheDir.absolutePath}/assets"
 
             process = processBuilder.start()
 
@@ -82,7 +71,7 @@ class V2RayManager(private val context: Context) {
                 } catch (_: Exception) { }
             }.start()
 
-            // خواندن خطا
+            // خواندن خطاها
             Thread {
                 try {
                     val reader = process?.errorStream?.bufferedReader()
@@ -93,7 +82,7 @@ class V2RayManager(private val context: Context) {
             }.start()
 
             running = true
-            Logger.writeLog("Xray started successfully")
+            Logger.writeLog("Xray started successfully from cache")
             Result.success(Unit)
         } catch (e: Exception) {
             Logger.writeError("Xray start failed", e)

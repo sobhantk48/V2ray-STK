@@ -17,4 +17,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "V2raySTK"
-include(":app", ":AndroidLibXrayLite")
+include(":app")
