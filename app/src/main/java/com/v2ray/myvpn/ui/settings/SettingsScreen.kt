@@ -1,142 +1,173 @@
 package com.v2ray.myvpn.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.v2ray.myvpn.ui.theme.*
+import com.v2ray.myvpn.viewmodel.MainViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onSave: () -> Unit = {}
+    viewModel: MainViewModel,
+    onBack: () -> Unit
 ) {
+    var selectedProtocol by remember { mutableStateOf("VLESS") }
+    val protocols = listOf("VLESS", "VMESS", "Trojan", "Shadowsocks", "Socks")
 
-    var autoConnect by remember {
-        mutableStateOf(false)
-    }
-
-    var startOnBoot by remember {
-        mutableStateOf(false)
-    }
-
-    var autoReconnect by remember {
-        mutableStateOf(true)
-    }
-
-    var batteryOptimization by remember {
-        mutableStateOf(false)
-    }
-
-    var keepAlive by remember {
-        mutableStateOf(true)
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        Column(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Back", tint = WhiteText)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkBackground
+                )
+            )
+        }
+    ) { padding ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            SettingItem(
-                title = "Auto Connect",
-                checked = autoConnect,
-                onChange = {
-                    autoConnect = it
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = DarkSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text("Protocol", color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        protocols.forEach { protocol ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedProtocol = protocol }
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(protocol, color = WhiteText)
+                                if (selectedProtocol == protocol) {
+                                    Icon(
+                                        androidx.compose.material.icons.Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = CyanAccent
+                                    )
+                                }
+                            }
+                            Divider(color = WhiteText.copy(alpha = 0.1f))
+                        }
+                    }
                 }
-            )
+            }
 
-            SettingItem(
-                title = "Start On Boot",
-                checked = startOnBoot,
-                onChange = {
-                    startOnBoot = it
+            item {
+                SwitchSetting(
+                    title = "Auto Connect on Start",
+                    checked = viewModel.autoConnect.value,
+                    onCheckedChange = { viewModel.setAutoConnect(it) }
+                )
+            }
+
+            item {
+                SwitchSetting(
+                    title = "Notifications",
+                    checked = viewModel.notificationsEnabled.value,
+                    onCheckedChange = { viewModel.setNotificationsEnabled(it) }
+                )
+            }
+
+            item {
+                SwitchSetting(
+                    title = "Dark Theme",
+                    checked = true, // همیشه دارک
+                    onCheckedChange = {}
+                )
+            }
+
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = DarkSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text("DNS", color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            listOf("Auto", "1.1.1.1", "8.8.8.8", "Custom").forEach { dns ->
+                                TextButton(
+                                    onClick = { /* انتخاب DNS */ },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        contentColor = CyanAccent
+                                    )
+                                ) {
+                                    Text(dns)
+                                }
+                            }
+                        }
+                    }
                 }
-            )
-
-            SettingItem(
-                title = "Auto Reconnect",
-                checked = autoReconnect,
-                onChange = {
-                    autoReconnect = it
-                }
-            )
-
-            SettingItem(
-                title = "Battery Optimization",
-                checked = batteryOptimization,
-                onChange = {
-                    batteryOptimization = it
-                }
-            )
-
-            SettingItem(
-                title = "Keep Alive",
-                checked = keepAlive,
-                onChange = {
-                    keepAlive = it
-                }
-            )
-
-            Spacer(
-                modifier = Modifier.height(32.dp)
-            )
-
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onSave
-            ) {
-                Text("Save")
             }
         }
     }
 }
 
 @Composable
-private fun SettingItem(
-    title: String,
-    checked: Boolean,
-    onChange: (Boolean) -> Unit
-) {
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
+fun SwitchSetting(title: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = DarkSurface
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
-
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f)
-        )
-
-        Switch(
-            checked = checked,
-            onCheckedChange = onChange
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(title, color = WhiteText)
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = CyanAccent,
+                    uncheckedThumbColor = Color.Gray
+                )
+            )
+        }
     }
 }

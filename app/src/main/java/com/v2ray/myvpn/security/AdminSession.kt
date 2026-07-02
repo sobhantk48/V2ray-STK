@@ -4,12 +4,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object AdminSession {
+    private const val DEFAULT_PASSWORD = "1311"
+    private var currentPassword = DEFAULT_PASSWORD
 
-    private val _loggedIn =
-        MutableStateFlow(false)
+    private val _loggedIn = MutableStateFlow(false)
+    val loggedIn: StateFlow<Boolean> = _loggedIn
 
-    val loggedIn: StateFlow<Boolean>
-        get() = _loggedIn
+    fun validatePassword(input: String): Boolean {
+        return input == currentPassword
+    }
 
     fun login() {
         _loggedIn.value = true
@@ -19,7 +22,12 @@ object AdminSession {
         _loggedIn.value = false
     }
 
-    fun isLoggedIn(): Boolean {
-        return _loggedIn.value
+    fun changePassword(oldPassword: String, newPassword: String): Boolean {
+        return if (oldPassword == currentPassword) {
+            currentPassword = newPassword
+            true
+        } else {
+            false
+        }
     }
 }

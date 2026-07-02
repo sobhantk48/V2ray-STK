@@ -1,172 +1,96 @@
 package com.v2ray.myvpn.ui.admin
 
-import android.app.Application
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import com.v2ray.myvpn.security.AdminSession
-import com.v2ray.myvpn.viewmodel.AdminViewModel
+import com.v2ray.myvpn.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminLoginScreen(
-    onSuccess: () -> Unit = {},
-    onBack: () -> Unit = {},
-    vm: AdminViewModel = viewModel(
-        factory = ViewModelProvider.AndroidViewModelFactory(
-            LocalContext.current.applicationContext as Application
-        )
-    )
+    onSuccess: () -> Unit,
+    onBack: () -> Unit
 ) {
+    var password by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
 
-    val loading by vm.loading.collectAsState()
-    val error by vm.error.collectAsState()
-
-    val loggedIn by AdminSession.loggedIn.collectAsState()
-
-    var password by remember {
-        mutableStateOf("")
-    }
-
-    var showPassword by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(loggedIn) {
-        if (loggedIn) {
-            onSuccess()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Admin Login", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Back", tint = WhiteText)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkBackground
+                )
+            )
         }
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
             Text(
-                text = "Admin Login",
-                style = MaterialTheme.typography.headlineMedium
+                text = "Enter Admin Password",
+                color = WhiteText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
-
-            Spacer(
-                modifier = Modifier.height(32.dp)
-            )
-
+            Spacer(modifier = Modifier.height(24.dp))
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
                 value = password,
-                onValueChange = {
-                    password = it
-                },
-                label = {
-                    Text("Password")
-                },
-                singleLine = true,
-                visualTransformation =
-                    if (showPassword)
-                        VisualTransformation.None
-                    else
-                        PasswordVisualTransformation(),
-                trailingIcon = {
-
-                    IconButton(
-                        onClick = {
-                            showPassword = !showPassword
-                        }
-                    ) {
-
-                        Text(
-                            if (showPassword)
-                                "🙈"
-                            else
-                                "👁"
-                        )
-                    }
-                }
+                onValueChange = { password = it },
+                label = { Text("Password", color = WhiteText.copy(alpha = 0.7f)) },
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PrimaryBlue,
+                    unfocusedBorderColor = WhiteText.copy(alpha = 0.3f),
+                    focusedTextColor = WhiteText,
+                    unfocusedTextColor = WhiteText
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            error?.let {
-
+            if (error != null) {
                 Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error
-                )
-
-                Spacer(
-                    modifier = Modifier.height(16.dp)
+                    text = error!!,
+                    color = RedError,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
-
-            if (loading) {
-
-                CircularProgressIndicator()
-
-            } else {
-
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-
-                        if (password.isNotBlank()) {
-                            vm.login(password)
-                        }
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    if (AdminSession.validatePassword(password)) {
+                        AdminSession.login()
+                        onSuccess()
+                    } else {
+                        error = "Invalid password"
                     }
-                ) {
-
-                    Text(
-                        "Login"
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-            TextButton(
-                onClick = onBack
+                },
+                modifier = Modifier.fillMaxWidth(0.6f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryBlue
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
-
-                Text(
-                    "Back"
-                )
+                Text("Login", color = WhiteText, fontWeight = FontWeight.Bold)
             }
         }
     }

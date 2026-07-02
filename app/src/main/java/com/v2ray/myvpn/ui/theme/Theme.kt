@@ -1,33 +1,36 @@
 package com.v2ray.myvpn.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// 🎨 Blue / Silver theme (based on your logo)
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFF4FC3F7),        // Blue Light
-    onPrimary = Color(0xFF001018),
+val DarkBackground = Color(0xFF081020)
+val DarkSurface = Color(0xFF141B2D)
+val PrimaryBlue = Color(0xFF4F7CFF)
+val CyanAccent = Color(0xFF00D4FF)
+val GreenAccent = Color(0xFF00E676)
+val RedError = Color(0xFFFF2522)
+val WhiteText = Color(0xFFFFFFFF)
 
-    secondary = Color(0xFFB0BEC5),      // Silver
-    onSecondary = Color(0xFF0A0A0A),
-
-    background = Color(0xFF0B0F14),     // Dark background
-    onBackground = Color(0xFFE6F1FF),
-
-    surface = Color(0xFF121A22),
-    onSurface = Color(0xFFE6F1FF),
-
-    tertiary = Color(0xFF2196F3)        // Strong Blue accent
+private val DarkColorScheme = darkColorScheme(
+    background = DarkBackground,
+    surface = DarkSurface,
+    primary = PrimaryBlue,
+    secondary = CyanAccent,
+    onBackground = WhiteText,
+    onSurface = WhiteText
 )
 
 @Composable
-fun V2raySTKTheme(
+fun MyVPNTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = DarkColors,
+        colorScheme = DarkColorScheme,
         content = content
     )
 }

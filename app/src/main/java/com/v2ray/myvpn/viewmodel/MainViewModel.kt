@@ -1,125 +1,97 @@
 package com.v2ray.myvpn.viewmodel
 
-import android.app.Application
-import android.content.Intent
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import com.v2ray.myvpn.model.VpnState
-import com.v2ray.myvpn.subscription.VlessParser
-import com.v2ray.myvpn.vpn.MyVpnService
-import com.v2ray.myvpn.vpn.VpnManager
-import com.v2ray.myvpn.xray.AssetExtractor
-import com.v2ray.myvpn.xray.ConfigRepository
-import com.v2ray.myvpn.xray.XrayConfigGenerator
-import com.v2ray.myvpn.xray.XrayRunner
-import kotlinx.coroutines.flow.StateFlow
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.v2ray.myvpn.data.Profile
+import com.v2ray.myvpn.repository.ProfileRepository
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class MainViewModel(
-    application: Application
-) : AndroidViewModel(application) {
+enum class ConnectionStatus {
+    IDLE, CONNECTING, CONNECTED, DISCONNECTED
+}
 
-    companion object {
-        private const val TAG = "V2raySTK"
-    }
+class MainViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    val vpnState: StateFlow<VpnState>
-        get() = VpnManager.state
+    val profiles: StateFlow<List<Profile>> = ProfileRepository.profiles
 
-    fun toggle() {
-        when (vpnState.value) {
+    // تنظیمات
+    val autoConnect = MutableStateFlow(false)
+    val notificationsEnabled = MutableStateFlow(true)
 
-            VpnState.DISCONNECTED -> {
-                connect()
+    init {
+        viewModelScope.launch {
+            profiles.collect { list ->
+                val selected = list.firstOrNull { it.selected }
+                _uiState.update { it.copy(currentProfile = selected) }
             }
-
-            VpnState.CONNECTED -> {
-                disconnect()
-            }
-
-            else -> {}
         }
     }
 
-    private fun connect() {
+    data class UiState(
+        val status: ConnectionStatus = ConnectionStatus.IDLE,
+        val currentProfile: Profile? = null,
+        val connectedTime: String = "00:00:00",
+        val ping: Int = 0,
+        val downloadSpeed: Double = 0.0,
+        val uploadSpeed: Double = 0.0
+    )
 
-        try {
-
-            val context =
-                getApplication<Application>()
-
-            val config =
-                VlessParser.parse(
-                    "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp&sni=google.com#Test"
+    fun connect() {
+        if (_uiState.value.currentProfile == null) return
+        _uiState.update { it.copy(status = ConnectionStatus.CONNECTING) }
+        // شبیه‌سازی اتصال
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(2000)
+            _uiState.update {
+                it.copy(
+                    status = ConnectionStatus.CONNECTED,
+                    connectedTime = "00:12:45",
+                    ping = 42,
+                    downloadSpeed = 25.6,
+                    uploadSpeed = 8.4
                 )
-
-            Log.d(TAG, "CONFIG = $config")
-
-            val json =
-                XrayConfigGenerator.generate(
-                    config
-                )
-
-            ConfigRepository.save(
-                context,
-                json
-            )
-
-            if (
-                !AssetExtractor.extractXray(
-                    context
-                )
-            ) {
-                Log.e(TAG, "xray extraction failed")
-                return
             }
-
-            if (
-                XrayRunner.start(
-                    context
-                )
-            ) {
-
-                context.startService(
-                    Intent(
-                        context,
-                        MyVpnService::class.java
-                    )
-                )
-
-                VpnManager.setConnected()
-
-            } else {
-
-                VpnManager.setDisconnected()
-            }
-
-        } catch (e: Exception) {
-
-            Log.e(
-                TAG,
-                "connect failed",
-                e
-            )
-
-            VpnManager.setDisconnected()
         }
     }
 
-    private fun disconnect() {
-
-        val context =
-            getApplication<Application>()
-
-        XrayRunner.stop()
-
-        context.stopService(
-            Intent(
-                context,
-                MyVpnService::class.java
+    fun disconnect() {
+        _uiState.update {
+            it.copy(
+                status = ConnectionStatus.DISCONNECTED,
+                connectedTime = "00:00:00",
+                ping = 0,
+                downloadSpeed = 0.0,
+                uploadSpeed = 0.0
             )
-        )
+        }
+    }
 
-        VpnManager.setDisconnecting()
-        VpnManager.setDisconnected()
+    fun selectProfile(profileId: String) {
+        ProfileRepository.select(profileId)
+        val selected = ProfileRepository.getSelected()
+        _uiState.update { it.copy(currentProfile = selected) }
+    }
+
+    fun addProfile(profile: Profile) {
+        ProfileRepository.add(profile)
+    }
+
+    fun updateProfile(profile: Profile) {
+        ProfileRepository.update(profile)
+    }
+
+    fun deleteProfile(profileId: String) {
+        ProfileRepository.delete(profileId)
+    }
+
+    fun setAutoConnect(enabled: Boolean) {
+        autoConnect.value = enabled
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        notificationsEnabled.value = enabled
     }
 }

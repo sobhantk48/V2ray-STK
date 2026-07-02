@@ -1,140 +1,66 @@
 package com.v2ray.myvpn.ui.about
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.v2ray.myvpn.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen() {
-
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
+fun AboutScreen(onBack: () -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("About Us", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(androidx.compose.material.icons.Icons.Default.ArrowBack, contentDescription = "Back", tint = WhiteText)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = DarkBackground
+                )
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+                .background(DarkBackground)
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
             Text(
-                text = "V2ray STK",
-                style = MaterialTheme.typography.headlineMedium
+                text = "V2RAY STK",
+                color = PrimaryBlue,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
             )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            AboutItem(
-                "Version",
-                "1.0.0"
-            )
-
-            AboutItem(
-                "Build",
-                "Alpha"
-            )
-
-            AboutItem(
-                "Developer",
-                "Sobhan TK"
-            )
-
-            AboutItem(
-                "Core",
-                "Xray-core"
-            )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Supported Protocols",
-                style = MaterialTheme.typography.titleLarge
+                text = "FAST • SECURE • STABLE",
+                color = CyanAccent,
+                fontSize = 18.sp
             )
-
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-            AboutItem(
-                "VLESS",
-                "Supported"
-            )
-
-            AboutItem(
-                "VMESS",
-                "Supported"
-            )
-
-            AboutItem(
-                "Trojan",
-                "Planned"
-            )
-
-            AboutItem(
-                "Shadowsocks",
-                "Planned"
-            )
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            AboutItem(
-                "License",
-                "GPL-3.0"
-            )
-
-            AboutItem(
-                "Github",
-                "V2ray-STK"
-            )
-        }
-    }
-}
-
-@Composable
-private fun AboutItem(
-    title: String,
-    value: String
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-
+            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium
+                text = "Version 1.0",
+                color = WhiteText.copy(alpha = 0.7f),
+                fontSize = 14.sp
             )
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = value
+                text = "© 2026 V2RAY STK Team",
+                color = WhiteText.copy(alpha = 0.5f),
+                fontSize = 12.sp
             )
         }
     }
