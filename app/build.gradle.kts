@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.v2ray.app"
-    compileSdk = 36
+    compileSdk = 34   // تغییر به 34 برای سازگاری
 
     defaultConfig {
         applicationId = "com.v2ray.app"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -58,7 +58,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
-    implementation("com.v2ray:v2ray-core:5.14.0")
+    // V2Ray Core از JitPack
+    implementation("com.github.v2ray:v2ray-core:5.14.0")
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     implementation("androidx.camera:camera-camera2:1.3.0")
