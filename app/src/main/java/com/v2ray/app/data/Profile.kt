@@ -2,6 +2,7 @@ package com.v2ray.app.data
 
 import android.util.Base64
 import java.io.Serializable
+import kotlinx.serialization.Serializable as KSerializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -10,6 +11,7 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 
+@KSerializable
 data class Profile(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
@@ -30,8 +32,9 @@ data class Profile(
     val city: String = ""
 ) : Serializable {
 
+    private val json = Json { prettyPrint = true }
+
     fun toV2RayConfig(): String {
-        val json = Json { prettyPrint = true }
         val outbound = when (type.uppercase()) {
             "VLESS" -> buildVlessJson()
             "VMESS" -> buildVmessJson()
