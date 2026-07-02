@@ -69,7 +69,7 @@ fun DashboardScreen(
                             DropdownMenuItem({ Text("Admin Panel", color = WhiteText) }, onClick = { expanded = false; onAdminClick() })
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(DarkBackground)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
                 )
             }
         ) { pad ->
@@ -158,7 +158,7 @@ fun DashboardScreen(
 }
 
 @Composable fun CurrentProfileCard(profile: Profile?) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(16.dp)) {
+    Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(16.dp)) {
         profile?.let {
             Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(it.name.ifEmpty { "No Name" }, color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -166,7 +166,7 @@ fun DashboardScreen(
                 Text("${it.address}:${it.port}", color = WhiteText.copy(0.7f), fontSize = 12.sp)
                 Text("${it.ping} ms", color = GreenAccent, fontSize = 14.sp)
             }
-        } ?: Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(16.dp)) {
+        } ?: Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(16.dp)) {
             Text("No profile selected", color = WhiteText.copy(0.5f), modifier = Modifier.fillMaxWidth().padding(16.dp), textAlign = TextAlign.Center)
         }
     }

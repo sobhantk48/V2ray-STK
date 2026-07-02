@@ -1,14 +1,15 @@
 package com.v2ray.app.data
 
 import android.util.Base64
-import kotlinx.serialization.Serializable
+import java.io.Serializable
+import kotlinx.serialization.Serializable as KSerializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-@Serializable
+@KSerializable
 data class Profile(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
@@ -27,7 +28,8 @@ data class Profile(
     val ping: Int = 0,
     val country: String = "",
     val city: String = ""
-) {
+) : Serializable {  // اضافه کردن Serializable برای Intent
+
     fun toV2RayConfig(): String {
         return when (type.uppercase()) {
             "VLESS" -> buildVlessConfig()
@@ -40,64 +42,90 @@ data class Profile(
 
     private fun buildVlessConfig(): String {
         return buildJsonObject {
-            put("v", "2")
-            put("ps", name)
-            put("add", address)
-            put("port", port)
-            put("id", uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" })
-            put("aid", "0")
-            put("net", "tcp")
-            put("type", "none")
-            put("host", "")
-            put("path", "")
-            put("tls", if (sni.isNotBlank() || realityPublicKey.isNotBlank()) "tls" else "")
-            put("sni", sni.ifEmpty { address })
-            put("fp", fingerprint)
-            if (flow.isNotBlank()) put("flow", flow)
-            if (realityPublicKey.isNotBlank()) {
-                put("pbk", realityPublicKey)
-                put("sid", realityShortId)
+            put("protocol", "vless")
+            put("settings", buildJsonObject {
+                put("vnext", listOf(
+                    buildJsonObject {
+                        put("address", address)
+                        put("port", port)
+                        put("users", listOf(
+                            buildJsonObject {
+                                put("id", uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" })
+                                put("flow", flow.ifEmpty { "none" })
+                                put("encryption", "none")
+                            }
+                        ))
+                    }
+                ))
+            })
+            if (sni.isNotBlank() || realityPublicKey.isNotBlank()) {
+                put("streamSettings", buildJsonObject {
+                    put("network", "tcp")
+                    put("security", if (realityPublicKey.isNotBlank()) "reality" else "tls")
+                    put("realitySettings", buildJsonObject {
+                        put("serverNames", listOf(sni.ifEmpty { address }))
+                        put("privateKey", "")
+                        put("shortIds", listOf(realityShortId.ifEmpty { "0000000000000000" }))
+                        put("publicKey", realityPublicKey)
+                    })
+                    put("tlsSettings", buildJsonObject {
+                        put("serverName", sni.ifEmpty { address })
+                        put("fingerprint", fingerprint)
+                    })
+                })
             }
         }.toString()
     }
 
     private fun buildVmessConfig(): String {
         return buildJsonObject {
-            put("v", "2")
-            put("ps", name)
-            put("add", address)
-            put("port", port)
-            put("id", uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" })
-            put("aid", "0")
-            put("net", "tcp")
-            put("type", "none")
-            put("host", "")
-            put("path", "")
-            put("tls", if (sni.isNotBlank()) "tls" else "")
+            put("protocol", "vmess")
+            put("settings", buildJsonObject {
+                put("vnext", listOf(
+                    buildJsonObject {
+                        put("address", address)
+                        put("port", port)
+                        put("users", listOf(
+                            buildJsonObject {
+                                put("id", uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" })
+                                put("security", "auto")
+                            }
+                        ))
+                    }
+                ))
+            })
         }.toString()
     }
 
     private fun buildTrojanConfig(): String {
         return buildJsonObject {
-            put("name", name)
-            put("type", "trojan")
-            put("server", address)
-            put("port", port)
-            put("password", uuid.ifEmpty { "password" })
-            put("sni", sni.ifEmpty { address })
-            put("skip-cert-verify", true)
-            put("udp", true)
+            put("protocol", "trojan")
+            put("settings", buildJsonObject {
+                put("servers", listOf(
+                    buildJsonObject {
+                        put("address", address)
+                        put("port", port)
+                        put("password", uuid.ifEmpty { "password" })
+                        put("flow", flow)
+                    }
+                ))
+            })
         }.toString()
     }
 
     private fun buildShadowsocksConfig(): String {
         return buildJsonObject {
-            put("name", name)
-            put("type", "shadowsocks")
-            put("server", address)
-            put("port", port)
-            put("password", uuid.ifEmpty { "password" })
-            put("method", encryption.ifEmpty { "chacha20-ietf-poly1305" })
+            put("protocol", "shadowsocks")
+            put("settings", buildJsonObject {
+                put("servers", listOf(
+                    buildJsonObject {
+                        put("address", address)
+                        put("port", port)
+                        put("method", encryption.ifEmpty { "chacha20-ietf-poly1305" })
+                        put("password", uuid.ifEmpty { "password" })
+                    }
+                ))
+            })
         }.toString()
     }
 

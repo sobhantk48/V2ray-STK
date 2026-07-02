@@ -2,6 +2,7 @@ package com.v2ray.app.ui.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -24,7 +25,7 @@ fun AdminLoginScreen(onSuccess: () -> Unit, onBack: () -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("Admin Login", color = WhiteText) }, navigationIcon = {
             IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }) { pad ->
         Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
@@ -38,7 +39,7 @@ fun AdminLoginScreen(onSuccess: () -> Unit, onBack: () -> Unit) {
             if (error != null) Text(error!!, color = RedError, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
             Spacer(Modifier.height(24.dp))
             Button({ if (AdminSession.validatePassword(pass)) { AdminSession.login(); onSuccess() } else error = "Invalid" },
-                Modifier.fillMaxWidth(0.6f), colors = ButtonDefaults.buttonColors(PrimaryBlue), shape = RoundedCornerShape(12.dp)) {
+                Modifier.fillMaxWidth(0.6f), colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue), shape = RoundedCornerShape(12.dp)) {
                 Text("Login", color = WhiteText, fontWeight = FontWeight.Bold)
             }
         }

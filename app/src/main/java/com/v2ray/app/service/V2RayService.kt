@@ -17,12 +17,14 @@ import com.v2ray.app.data.Profile
 import com.v2ray.app.utils.Logger
 import com.v2ray.app.v2ray.V2RayManager
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 class V2RayService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var manager: V2RayManager
     private val _state = MutableStateFlow(ConnectionState())
-    val state = _state
+    val state: StateFlow<ConnectionState> = _state
 
     companion object {
         private const val NOTIF_ID = 1001
@@ -33,7 +35,9 @@ class V2RayService : Service() {
         fun observeState(cb: (ConnectionState) -> Unit) { callback = cb; instance?.let { cb(it.state.value) } }
         fun start(ctx: Context, profile: Profile) {
             Logger.writeLog("V2RayService start: ${profile.name}")
-            ctx.startForegroundService(Intent(ctx, V2RayService::class.java).putExtra("profile", profile))
+            ctx.startForegroundService(Intent(ctx, V2RayService::class.java).apply {
+                putExtra("profile", profile)
+            })
         }
         fun stop(ctx: Context) { ctx.stopService(Intent(ctx, V2RayService::class.java)) }
         fun getInstance() = instance
@@ -60,7 +64,10 @@ class V2RayService : Service() {
                 callback?.invoke(_state.value)
                 updateNotification("Connecting to ${profile.name}...")
 
-                val result = manager.startV2Ray(profile.toV2RayConfig())
+                val config = profile.toV2RayConfig()
+                Logger.writeLog("Config: $config")
+
+                val result = manager.startV2Ray(config)
                 if (result.isSuccess) {
                     _state.value = _state.value.copy(
                         status = ConnectionStatus.CONNECTED,
@@ -69,7 +76,6 @@ class V2RayService : Service() {
                     )
                     callback?.invoke(_state.value)
                     updateNotification("Connected to ${profile.name}")
-                    monitorStats()
                 } else {
                     val err = result.exceptionOrNull()
                     _state.value = _state.value.copy(status = ConnectionStatus.ERROR, errorMessage = err?.message ?: "Failed")
@@ -82,20 +88,6 @@ class V2RayService : Service() {
                 callback?.invoke(_state.value)
                 updateNotification("Error: ${e.message}")
             }
-        }
-    }
-
-    private suspend fun monitorStats() {
-        while (_state.value.status == ConnectionStatus.CONNECTED) {
-            try {
-                val stats = manager.getStats()
-                _state.value = _state.value.copy(
-                    downloadSpeed = stats.downlink / 1024.0 / 1024.0,
-                    uploadSpeed = stats.uplink / 1024.0 / 1024.0
-                )
-                callback?.invoke(_state.value)
-                delay(1000)
-            } catch (_: Exception) { delay(1000) }
         }
     }
 

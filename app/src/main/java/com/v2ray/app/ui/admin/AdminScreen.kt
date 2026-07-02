@@ -31,7 +31,7 @@ fun AdminScreen(vm: MainViewModel, onBack: () -> Unit) {
             IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
         }, actions = {
             IconButton({ showChangePass = true }) { Icon(Icons.Default.Lock, tint = WhiteText, contentDescription = "Change Password") }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }, floatingActionButton = {
         FloatingActionButton({ showAdd = true }, containerColor = PrimaryBlue) {
             Icon(Icons.Default.Add, tint = WhiteText, contentDescription = "Add")
@@ -40,7 +40,7 @@ fun AdminScreen(vm: MainViewModel, onBack: () -> Unit) {
         LazyColumn(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (profiles.isEmpty()) {
                 item {
-                    Card(colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(12.dp)) {
+                    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
                         Text("No profiles added yet.\nTap + to add one.", color = WhiteText.copy(0.7f),
                             modifier = Modifier.fillMaxWidth().padding(24.dp), textAlign = TextAlign.Center)
                     }
@@ -60,7 +60,7 @@ fun AdminScreen(vm: MainViewModel, onBack: () -> Unit) {
 }
 
 @Composable fun AdminProfileCard(profile: Profile, onEdit: () -> Unit, onDelete: () -> Unit) {
-    Card(colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(12.dp)) {
+    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column {
                 Text(profile.name.ifEmpty { "Unnamed" }, color = WhiteText, fontWeight = FontWeight.Bold)

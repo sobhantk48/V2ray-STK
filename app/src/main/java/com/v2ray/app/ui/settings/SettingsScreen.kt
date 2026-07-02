@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -27,18 +28,18 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("Settings", color = WhiteText) }, navigationIcon = {
             IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }) { pad ->
         LazyColumn(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item {
-                Card(colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(12.dp)) {
+                Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Default Protocol", color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         protocols.forEach { p ->
                             Row(Modifier.fillMaxWidth().clickable { protocol = p }.padding(vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                 Text(p, color = WhiteText)
-                                if (protocol == p) Icon(Icons.Default.Check, tint = CyanAccent)
+                                if (protocol == p) Icon(Icons.Default.Check, tint = CyanAccent, contentDescription = null)
                             }
                             Divider(color = WhiteText.copy(0.1f))
                         }
@@ -53,7 +54,7 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
 }
 
 @Composable fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Card(colors = CardDefaults.cardColors(DarkSurface), shape = RoundedCornerShape(12.dp)) {
+    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(title, color = WhiteText)
             Switch(checked, onChange, colors = SwitchDefaults.colors(checkedThumbColor = CyanAccent, uncheckedThumbColor = Color.Gray))
