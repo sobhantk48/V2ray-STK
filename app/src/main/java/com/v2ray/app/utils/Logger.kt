@@ -19,25 +19,30 @@ object Logger {
     fun initialize(ctx: Context) {
         context = ctx.applicationContext
         try {
+            // استفاده از Documents برای Android 10+ و حافظه داخلی برای نسخه‌های پایین‌تر
             val externalDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
             } else {
                 Environment.getExternalStorageDirectory()
             }
+
             val appDir = File(externalDir, "V2RAY_STK_LOGS")
-            if (!appDir.exists()) appDir.mkdirs()
+            if (!appDir.exists()) {
+                val created = appDir.mkdirs()
+                Log.d(TAG, "Log directory created: $created at ${appDir.absolutePath}")
+            }
 
             logFile = File(appDir, LOG_FILE_NAME)
-            if (logFile?.exists() == true && logFile?.length() ?: 0 > 10 * 1024 * 1024) {
-                val archive = File(appDir, "v2ray_stk_log_${System.currentTimeMillis()}.txt")
-                logFile?.renameTo(archive)
-                logFile = File(appDir, LOG_FILE_NAME)
+            if (!logFile!!.exists()) {
+                logFile!!.createNewFile()
+                Log.d(TAG, "Log file created at ${logFile!!.absolutePath}")
             }
 
             isInitialized = true
             writeLog("=== V2RAY STK LOG STARTED ===")
             writeLog("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
             writeLog("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
+            writeLog("Log file: ${logFile!!.absolutePath}")
             writeLog("================================")
         } catch (e: Exception) {
             Log.e(TAG, "Logger init failed", e)
@@ -72,7 +77,35 @@ object Logger {
         } catch (_: Exception) {}
     }
 
-    fun getLogFilePath(): String? = logFile?.absolutePath
-    fun getLogContent(): String? = try { logFile?.readText() } catch (_: Exception) { null }
-    fun clearLogs() { try { logFile?.delete(); logFile?.createNewFile(); writeLog("Logs cleared") } catch (_: Exception) {} }
+    fun getLogFilePath(): String? {
+        return try {
+            logFile?.absolutePath
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    fun getLogContent(): String? {
+        return try {
+            val file = logFile
+            if (file == null || !file.exists()) {
+                Log.e(TAG, "Log file does not exist")
+                return null
+            }
+            val content = file.readText()
+            Log.d(TAG, "Log content length: ${content.length}")
+            content
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to read log file", e)
+            null
+        }
+    }
+
+    fun clearLogs() {
+        try {
+            logFile?.delete()
+            logFile?.createNewFile()
+            writeLog("Logs cleared")
+        } catch (_: Exception) {}
+    }
 }

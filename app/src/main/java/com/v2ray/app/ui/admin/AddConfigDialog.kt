@@ -20,6 +20,7 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
     var type by remember { mutableStateOf("VLESS") }
     var uuid by remember { mutableStateOf("") }
     var jsonInput by remember { mutableStateOf("") }
+    var parseError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -28,7 +29,10 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = jsonInput,
-                    onValueChange = { jsonInput = it },
+                    onValueChange = { 
+                        jsonInput = it
+                        parseError = null
+                    },
                     label = { Text("Paste JSON or Link", color = WhiteText.copy(0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 5,
@@ -39,33 +43,68 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                         unfocusedTextColor = WhiteText
                     )
                 )
-                Button(
-                    onClick = {
-                        try {
-                            // تلاش برای لینک
-                            Profile.fromLink(jsonInput)?.let { p ->
-                                name = p.name
-                                addr = p.address
-                                port = p.port.toString()
-                                type = p.type
-                                uuid = p.uuid
-                            } ?: run {
-                                // تلاش برای JSON خام
-                                Profile.fromJson(jsonInput)?.let { p ->
+                if (parseError != null) {
+                    Text(
+                        text = parseError!!,
+                        color = RedError,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            try {
+                                if (jsonInput.isBlank()) {
+                                    parseError = "Please paste JSON or link"
+                                    return@Button
+                                }
+                                // تلاش برای لینک
+                                Profile.fromLink(jsonInput)?.let { p ->
                                     name = p.name
                                     addr = p.address
                                     port = p.port.toString()
                                     type = p.type
                                     uuid = p.uuid
+                                    parseError = null
+                                } ?: run {
+                                    // تلاش برای JSON خام
+                                    Profile.fromJson(jsonInput)?.let { p ->
+                                        name = p.name
+                                        addr = p.address
+                                        port = p.port.toString()
+                                        type = p.type
+                                        uuid = p.uuid
+                                        parseError = null
+                                    } ?: run {
+                                        parseError = "Invalid JSON or link format"
+                                    }
                                 }
+                            } catch (e: Exception) {
+                                parseError = "Parse error: ${e.message}"
                             }
-                        } catch (_: Exception) {}
-                    },
-                    colors = ButtonDefaults.buttonColors(CyanAccent),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Parse", color = DarkBackground, fontWeight = FontWeight.Bold)
+                        },
+                        colors = ButtonDefaults.buttonColors(CyanAccent),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Parse", color = DarkBackground, fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = {
+                            // نمونه JSON برای تست
+                            jsonInput = """{"name":"Test Server","address":"example.com","port":443,"type":"VLESS","uuid":"00000000-0000-0000-0000-000000000000"}"""
+                            parseError = null
+                        },
+                        colors = ButtonDefaults.buttonColors(PrimaryBlue.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Sample", color = WhiteText, fontSize = 12.sp)
+                    }
                 }
                 Divider(color = WhiteText.copy(0.2f))
                 OutlinedTextField(
@@ -165,6 +204,8 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                             port = port.toIntOrNull() ?: 443,
                             uuid = uuid
                         ))
+                    } else {
+                        parseError = "Please fill all required fields"
                     }
                 },
                 colors = ButtonDefaults.buttonColors(GreenAccent),

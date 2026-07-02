@@ -30,13 +30,21 @@ object ProfileRepository {
         try {
             val raw = prefs.getString("profiles", null)
             if (!raw.isNullOrBlank()) {
-                _profiles.value = json.decodeFromString(raw)
-                Logger.writeLog("Loaded ${_profiles.value.size} profiles from SharedPreferences")
+                val list = json.decodeFromString<List<Profile>>(raw)
+                _profiles.value = list
+                Logger.writeLog("Loaded ${list.size} profiles from SharedPreferences")
+                // اگر هیچ پروفایلی selected نیست و لیست خالی نیست، اولین را انتخاب کن
+                if (list.isNotEmpty() && list.none { it.selected }) {
+                    val first = list.first()
+                    select(first.id)
+                }
             } else {
                 Logger.writeLog("No profiles found in SharedPreferences")
             }
         } catch (e: Exception) {
             Logger.writeError("Load profiles failed", e)
+            // در صورت خطا، لیست را خالی کن
+            _profiles.value = emptyList()
         }
     }
 
@@ -55,6 +63,10 @@ object ProfileRepository {
     fun add(profile: Profile) {
         _profiles.update { it + profile }
         save()
+        // اگر اولین پروفایل است، آن را انتخاب کن
+        if (_profiles.value.size == 1) {
+            select(profile.id)
+        }
         Logger.writeLog("Added: ${profile.name}")
     }
 
@@ -68,6 +80,11 @@ object ProfileRepository {
     fun delete(id: String) {
         _profiles.update { it.filterNot { it.id == id } }
         save()
+        // اگر پروفایل حذف شده selected بود، اولین پروفایل را انتخاب کن
+        val currentList = _profiles.value
+        if (currentList.isNotEmpty() && currentList.none { it.selected }) {
+            select(currentList.first().id)
+        }
         Logger.writeLog("Deleted: $id")
     }
 

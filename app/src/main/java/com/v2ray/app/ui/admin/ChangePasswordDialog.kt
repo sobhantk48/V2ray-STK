@@ -18,6 +18,7 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
     var new by remember { mutableStateOf("") }
     var confirm by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    var success by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -26,7 +27,10 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = old,
-                    onValueChange = { old = it },
+                    onValueChange = { 
+                        old = it
+                        error = null
+                    },
                     label = { Text("Old Password", color = WhiteText.copy(0.7f)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -39,8 +43,11 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
                 )
                 OutlinedTextField(
                     value = new,
-                    onValueChange = { new = it },
-                    label = { Text("New Password", color = WhiteText.copy(0.7f)) },
+                    onValueChange = { 
+                        new = it
+                        error = null
+                    },
+                    label = { Text("New Password (min 4 chars)", color = WhiteText.copy(0.7f)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -52,7 +59,10 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
                 )
                 OutlinedTextField(
                     value = confirm,
-                    onValueChange = { confirm = it },
+                    onValueChange = { 
+                        confirm = it
+                        error = null
+                    },
                     label = { Text("Confirm New Password", color = WhiteText.copy(0.7f)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -66,17 +76,25 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
                 if (error != null) {
                     Text(error!!, color = RedError, fontSize = 14.sp)
                 }
+                if (success) {
+                    Text("Password changed successfully!", color = GreenAccent, fontSize = 14.sp)
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
                     when {
-                        new.length < 4 -> error = "Password must be at least 4 characters"
+                        new.length < 4 -> error = "New password must be at least 4 characters"
                         new != confirm -> error = "Passwords do not match"
                         else -> {
                             if (AdminSession.changePassword(old, new)) {
-                                onSuccess()
+                                success = true
+                                // بعد از 1.5 ثانیه دیالوگ را ببند
+                                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                                    kotlinx.coroutines.delay(1500)
+                                    onSuccess()
+                                }
                             } else {
                                 error = "Old password is incorrect"
                             }

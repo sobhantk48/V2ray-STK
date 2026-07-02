@@ -139,7 +139,8 @@ data class Profile(
 
         fun fromJson(jsonString: String): Profile? {
             return try {
-                val obj = Json.parseToJsonElement(jsonString).jsonObject
+                val json = Json { ignoreUnknownKeys = true }
+                val obj = json.parseToJsonElement(jsonString).jsonObject
                 Profile(
                     name = obj["name"]?.jsonPrimitive?.content ?: "Imported",
                     type = obj["type"]?.jsonPrimitive?.content?.uppercase() ?: "VLESS",
@@ -152,7 +153,10 @@ data class Profile(
                     realityPublicKey = obj["pbk"]?.jsonPrimitive?.content ?: "",
                     realityShortId = obj["sid"]?.jsonPrimitive?.content ?: ""
                 )
-            } catch (_: Exception) { null }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
 
         private fun parseVless(link: String): Profile {
