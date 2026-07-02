@@ -97,7 +97,7 @@ fun DashboardScreen(
 
 @Composable fun DrawerItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().clickable { onClick() }.padding(vertical = 12.dp), horizontalArrangement = Arrangement.Start) {
-        Icon(icon, tint = CyanAccent, modifier = Modifier.size(24.dp))
+        Icon(icon, contentDescription = null, tint = CyanAccent, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(16.dp))
         Text(text, color = WhiteText, fontSize = 16.sp)
     }

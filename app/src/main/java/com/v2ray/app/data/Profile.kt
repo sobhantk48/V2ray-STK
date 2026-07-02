@@ -32,8 +32,6 @@ data class Profile(
     val city: String = ""
 ) : Serializable {
 
-    private val json = Json { prettyPrint = true }
-
     fun toV2RayConfig(): String {
         val outbound = when (type.uppercase()) {
             "VLESS" -> buildVlessJson()
@@ -42,7 +40,8 @@ data class Profile(
             "SHADOWSOCKS" -> buildShadowsocksJson()
             else -> buildVlessJson()
         }
-        return json.encodeToString(outbound)
+        // استفاده از toString() به جای encodeToString
+        return outbound.toString()
     }
 
     private fun buildVlessJson() = buildJsonObject {
