@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import com.v2ray.myvpn.security.AdminSession
 import com.v2ray.myvpn.ui.about.AboutScreen
 import com.v2ray.myvpn.ui.admin.AdminLoginScreen
@@ -28,11 +29,9 @@ fun AppNavigation() {
 
     val navController = rememberNavController()
 
-    // فقط یک ProfileViewModel برای کل برنامه
     val profileViewModel: ProfileViewModel = viewModel()
 
-    val adminLoggedIn by
-        AdminSession.loggedIn.collectAsState()
+    val adminLoggedIn by AdminSession.loggedIn.collectAsState()
 
     NavHost(
         navController = navController,
@@ -40,16 +39,10 @@ fun AppNavigation() {
     ) {
 
         composable(AppRoutes.SPLASH) {
-
             SplashScreen(
                 onFinish = {
-
-                    navController.navigate(
-                        AppRoutes.HOME
-                    ) {
-                        popUpTo(
-                            AppRoutes.SPLASH
-                        ) {
+                    navController.navigate(AppRoutes.HOME) {
+                        popUpTo(AppRoutes.SPLASH) {
                             inclusive = true
                         }
                     }
@@ -58,41 +51,24 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.HOME) {
-
             HomeScreen(
-
-                onConnect = {
-                },
-
+                onConnect = {},
                 onAdmin = {
-
-                    navController.navigate(
-                        AppRoutes.ADMIN_LOGIN
-                    )
+                    navController.navigate(AppRoutes.ADMIN_LOGIN)
                 }
             )
         }
 
         composable(AppRoutes.ADMIN_LOGIN) {
-
             AdminLoginScreen(
-
                 onSuccess = {
-
-                    navController.navigate(
-                        AppRoutes.DASHBOARD
-                    ) {
-
-                        popUpTo(
-                            AppRoutes.ADMIN_LOGIN
-                        ) {
+                    navController.navigate(AppRoutes.DASHBOARD) {
+                        popUpTo(AppRoutes.ADMIN_LOGIN) {
                             inclusive = true
                         }
                     }
                 },
-
                 onBack = {
-
                     navController.popBackStack()
                 }
             )
@@ -100,62 +76,30 @@ fun AppNavigation() {
 
         composable(AppRoutes.DASHBOARD) {
 
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
+            AdminProtected(navController, adminLoggedIn) {
 
                 DashboardScreen(
-
                     onProfiles = {
-
-                        navController.navigate(
-                            AppRoutes.PROFILES
-                        )
+                        navController.navigate(AppRoutes.PROFILES)
                     },
-
                     onSubscription = {
-
-                        navController.navigate(
-                            AppRoutes.SUBSCRIPTION
-                        )
+                        navController.navigate(AppRoutes.SUBSCRIPTION)
                     },
-
                     onLogs = {
-
-                        navController.navigate(
-                            AppRoutes.LOGS
-                        )
+                        navController.navigate(AppRoutes.LOGS)
                     },
-
                     onSettings = {
-
-                        navController.navigate(
-                            AppRoutes.SETTINGS
-                        )
+                        navController.navigate(AppRoutes.SETTINGS)
                     },
-
                     onSecurity = {
-
-                        navController.navigate(
-                            AppRoutes.SECURITY
-                        )
+                        navController.navigate(AppRoutes.SECURITY)
                     },
-
                     onAbout = {
-
-                        navController.navigate(
-                            AppRoutes.ABOUT
-                        )
+                        navController.navigate(AppRoutes.ABOUT)
                     },
-
                     onLogout = {
-
                         AdminSession.logout()
-
-                        navController.navigate(
-                            AppRoutes.HOME
-                        ) {
+                        navController.navigate(AppRoutes.HOME) {
                             popUpTo(0)
                         }
                     }
@@ -165,27 +109,14 @@ fun AppNavigation() {
 
         composable(AppRoutes.PROFILES) {
 
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
+            AdminProtected(navController, adminLoggedIn) {
 
                 ProfilesScreen(
-
-                    vm = profileViewModel,
-
                     onAdd = {
-
-                        navController.navigate(
-                            AppRoutes.EDIT_PROFILE
-                        )
+                        navController.navigate(AppRoutes.EDIT_PROFILE)
                     },
-
                     onEdit = { _ ->
-
-                        navController.navigate(
-                            AppRoutes.EDIT_PROFILE
-                        )
+                        navController.navigate(AppRoutes.EDIT_PROFILE)
                     }
                 )
             }
@@ -193,66 +124,40 @@ fun AppNavigation() {
 
         composable(AppRoutes.EDIT_PROFILE) {
 
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
+            AdminProtected(navController, adminLoggedIn) {
 
                 EditProfileScreen(
-
-                    vm = profileViewModel,
-
+                    profile = null,
                     onSaved = {
-
                         navController.popBackStack()
                     },
-
                     onCancel = {
-
                         navController.popBackStack()
-                    }
+                    },
+                    vm = profileViewModel
                 )
             }
         }
 
         composable(AppRoutes.SUBSCRIPTION) {
-
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
-
+            AdminProtected(navController, adminLoggedIn) {
                 SubscriptionScreen()
             }
         }
 
         composable(AppRoutes.LOGS) {
-
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
-
+            AdminProtected(navController, adminLoggedIn) {
                 LogsScreen()
             }
         }
 
         composable(AppRoutes.SECURITY) {
-
-            AdminProtected(
-                navController,
-                adminLoggedIn
-            ) {
+            AdminProtected(navController, adminLoggedIn) {
 
                 SecurityScreen(
-
                     onLogout = {
-
                         AdminSession.logout()
-
-                        navController.navigate(
-                            AppRoutes.HOME
-                        ) {
+                        navController.navigate(AppRoutes.HOME) {
                             popUpTo(0)
                         }
                     }
@@ -261,12 +166,10 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.SETTINGS) {
-
             SettingsScreen()
         }
 
         composable(AppRoutes.ABOUT) {
-
             AboutScreen()
         }
     }
@@ -278,14 +181,9 @@ private fun AdminProtected(
     loggedIn: Boolean,
     content: @Composable () -> Unit
 ) {
-
     LaunchedEffect(loggedIn) {
-
         if (!loggedIn) {
-
-            navController.navigate(
-                AppRoutes.ADMIN_LOGIN
-            )
+            navController.navigate(AppRoutes.ADMIN_LOGIN)
         }
     }
 
