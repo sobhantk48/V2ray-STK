@@ -14,4 +14,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "V2raySTK"
-include(":app")
+include(":app", ":v2ray")
