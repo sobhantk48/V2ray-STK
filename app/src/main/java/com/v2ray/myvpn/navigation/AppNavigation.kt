@@ -28,7 +28,6 @@ import com.v2ray.myvpn.viewmodel.ProfileViewModel
 fun AppNavigation() {
 
     val navController = rememberNavController()
-
     val profileViewModel: ProfileViewModel = viewModel()
 
     val adminLoggedIn by AdminSession.loggedIn.collectAsState()
@@ -42,9 +41,7 @@ fun AppNavigation() {
             SplashScreen(
                 onFinish = {
                     navController.navigate(AppRoutes.HOME) {
-                        popUpTo(AppRoutes.SPLASH) {
-                            inclusive = true
-                        }
+                        popUpTo(AppRoutes.SPLASH) { inclusive = true }
                     }
                 }
             )
@@ -52,7 +49,7 @@ fun AppNavigation() {
 
         composable(AppRoutes.HOME) {
             HomeScreen(
-                onConnect = {},
+                onConnect = { },
                 onAdmin = {
                     navController.navigate(AppRoutes.ADMIN_LOGIN)
                 }
@@ -63,9 +60,7 @@ fun AppNavigation() {
             AdminLoginScreen(
                 onSuccess = {
                     navController.navigate(AppRoutes.DASHBOARD) {
-                        popUpTo(AppRoutes.ADMIN_LOGIN) {
-                            inclusive = true
-                        }
+                        popUpTo(AppRoutes.ADMIN_LOGIN) { inclusive = true }
                     }
                 },
                 onBack = {
@@ -75,9 +70,7 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.DASHBOARD) {
-
             AdminProtected(navController, adminLoggedIn) {
-
                 DashboardScreen(
                     onProfiles = {
                         navController.navigate(AppRoutes.PROFILES)
@@ -108,10 +101,9 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.PROFILES) {
-
             AdminProtected(navController, adminLoggedIn) {
-
                 ProfilesScreen(
+                    vm = profileViewModel,
                     onAdd = {
                         navController.navigate(AppRoutes.EDIT_PROFILE)
                     },
@@ -123,18 +115,15 @@ fun AppNavigation() {
         }
 
         composable(AppRoutes.EDIT_PROFILE) {
-
             AdminProtected(navController, adminLoggedIn) {
-
                 EditProfileScreen(
-                    profile = null,
+                    vm = profileViewModel,
                     onSaved = {
                         navController.popBackStack()
                     },
                     onCancel = {
                         navController.popBackStack()
-                    },
-                    vm = profileViewModel
+                    }
                 )
             }
         }
@@ -153,7 +142,6 @@ fun AppNavigation() {
 
         composable(AppRoutes.SECURITY) {
             AdminProtected(navController, adminLoggedIn) {
-
                 SecurityScreen(
                     onLogout = {
                         AdminSession.logout()
