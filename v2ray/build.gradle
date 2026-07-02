@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace = "com.v2ray.lib"
     compileSdk = 34
 
     defaultConfig {
