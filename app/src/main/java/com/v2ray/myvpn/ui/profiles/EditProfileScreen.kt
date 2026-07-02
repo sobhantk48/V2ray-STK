@@ -191,6 +191,13 @@ fun EditProfileScreen(
  		        "MYXRAY",
    		        "SAVE BUTTON CLICKED"
 		  )
+		  if (
+ 		     name.isBlank() ||
+   		     host.isBlank() ||
+   		     protocol.isBlank()
+		  ) {
+   		     return@Button
+		  }
 
                     if (profile == null) {
 
