@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
     private fun requestPermissions() {
         val permissions = mutableListOf<String>()
 
+        // مجوز ذخیره‌سازی (Android 9 و پایین‌تر)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -39,10 +40,25 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // مجوز نوتیفیکیشن (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        // مجوز دوربین (برای اسکن QR)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.CAMERA)
+        }
+
+        // مجوز مدیریت حافظه برای Android 11+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!android.os.Environment.isExternalStorageManager()) {
+                // این مجوز باید از طریق Intent درخواست شود
+                Logger.writeLog("MANAGE_EXTERNAL_STORAGE not granted")
             }
         }
 
@@ -57,6 +73,7 @@ class MainActivity : ComponentActivity() {
             grantResults.forEachIndexed { index, result ->
                 if (result == PackageManager.PERMISSION_GRANTED) {
                     Logger.writeLog("Permission granted: ${permissions[index]}")
+                    Toast.makeText(this, "Permission granted: ${permissions[index]}", Toast.LENGTH_SHORT).show()
                 } else {
                     Logger.writeLog("Permission denied: ${permissions[index]}")
                 }

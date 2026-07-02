@@ -15,11 +15,10 @@ class V2RayManager(private val context: Context) {
         try {
             if (running) return@withContext Result.success(Unit)
 
-            // ایجاد پوشه assets در حافظه داخلی
             val assetsDir = File(context.filesDir, "assets")
             if (!assetsDir.exists()) assetsDir.mkdirs()
 
-            // کپی فایل‌های باینری و دیتابیس
+            // کپی فایل‌ها
             copyAssetToFile("xray", File(assetsDir, "xray"))
             copyAssetToFile("geoip.dat", File(assetsDir, "geoip.dat"))
             copyAssetToFile("geosite.dat", File(assetsDir, "geosite.dat"))
@@ -29,27 +28,38 @@ class V2RayManager(private val context: Context) {
                 return@withContext Result.failure(Exception("Xray binary not found in assets"))
             }
 
-            // تنظیم مجوز اجرا با chmod
+            // تنظیم مجوز اجرا با روش‌های متعدد
             try {
-                val chmodProcess = Runtime.getRuntime().exec(arrayOf("chmod", "755", xrayFile.absolutePath))
-                chmodProcess.waitFor()
-                Logger.writeLog("chmod 755 executed for ${xrayFile.absolutePath}")
-            } catch (e: Exception) {
-                Logger.writeError("chmod failed", e)
-                // fallback: استفاده از setExecutable
+                // روش اول: setExecutable
                 xrayFile.setExecutable(true, false)
+                xrayFile.setReadable(true, false)
+                xrayFile.setWritable(true, false)
+
+                // روش دوم: chmod با Runtime.exec
+                val chmodProcess = Runtime.getRuntime().exec(arrayOf("chmod", "777", xrayFile.absolutePath))
+                chmodProcess.waitFor()
+                Logger.writeLog("chmod 777 executed")
+
+                // روش سوم: استفاده از sh -c برای اطمینان
+                val shProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", "chmod 777 ${xrayFile.absolutePath}"))
+                shProcess.waitFor()
+                Logger.writeLog("sh -c chmod executed")
+            } catch (e: Exception) {
+                Logger.writeError("Chmod failed", e)
             }
+
+            // بررسی مجوز نهایی
+            Logger.writeLog("Final permissions: canExecute=${xrayFile.canExecute()}, canRead=${xrayFile.canRead()}")
 
             // ذخیره کانفیگ
             val configFile = File(context.filesDir, "v2ray_config.json")
             configFile.writeText(configJson)
 
-            // ساخت دستور اجرا
+            // ساخت دستور با sh -c
             val command = arrayOf(
-                xrayFile.absolutePath,
-                "run",
-                "-config", configFile.absolutePath,
-                "-format", "json"
+                "sh",
+                "-c",
+                "${xrayFile.absolutePath} run -config ${configFile.absolutePath} -format json"
             )
 
             Logger.writeLog("Starting Xray with command: ${command.joinToString(" ")}")
@@ -57,15 +67,27 @@ class V2RayManager(private val context: Context) {
             val processBuilder = ProcessBuilder(*command)
             processBuilder.redirectErrorStream(true)
             processBuilder.directory(context.filesDir)
+            // تنظیم محیط برای اجرا
+            processBuilder.environment()["PATH"] = "${System.getenv("PATH")}:${context.filesDir.absolutePath}/assets"
 
             process = processBuilder.start()
 
-            // خواندن خروجی در ترد جداگانه
+            // خواندن خروجی
             Thread {
                 try {
                     val reader = process?.inputStream?.bufferedReader()
                     reader?.forEachLine { line ->
                         Logger.writeLog("[Xray] $line")
+                    }
+                } catch (_: Exception) { }
+            }.start()
+
+            // خواندن خطا
+            Thread {
+                try {
+                    val reader = process?.errorStream?.bufferedReader()
+                    reader?.forEachLine { line ->
+                        Logger.writeLog("[Xray-ERR] $line")
                     }
                 } catch (_: Exception) { }
             }.start()
