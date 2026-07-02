@@ -70,8 +70,7 @@ fun DashboardScreen(
                         IconButton({ expanded = true }) { Icon(Icons.Default.MoreVert, tint = WhiteText, contentDescription = "Admin") }
                         DropdownMenu(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            containerColor = DarkSurface
+                            onDismissRequest = { expanded = false }
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Admin Panel", color = WhiteText) },
