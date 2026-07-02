@@ -32,15 +32,22 @@ object ProfileRepository {
             prettyPrint = true
         }
 
-    private fun writeLog(
-        msg: String
+    private fun log(
+        text: String
     ) {
+
         try {
-            File(
-                "/storage/emulated/0/MyXrayVPN_repository.log"
-            ).appendText(
-                "${System.currentTimeMillis()} : $msg\n"
+
+            val file =
+                File(
+                    context.filesDir,
+                    "profile_debug.log"
+                )
+
+            file.appendText(
+                "${System.currentTimeMillis()} : $text\n"
             )
+
         } catch (_: Exception) {
         }
     }
@@ -57,12 +64,12 @@ object ProfileRepository {
         ctx: Context
     ) {
 
-        writeLog(
-            "initialize called"
-        )
-
         context =
             ctx.applicationContext
+
+        log(
+            "initialize()"
+        )
 
         scope.launch {
 
@@ -76,12 +83,11 @@ object ProfileRepository {
 
                 val raw =
                     prefs[
-                        ProfileKeys
-                            .PROFILES
+                        ProfileKeys.PROFILES
                     ]
 
-                writeLog(
-                    "raw=$raw"
+                log(
+                    "loaded raw=$raw"
                 )
 
                 if (
@@ -93,7 +99,7 @@ object ProfileRepository {
                             raw
                         )
 
-                    writeLog(
+                    log(
                         "loaded count=${_profiles.value.size}"
                     )
                 }
@@ -102,20 +108,22 @@ object ProfileRepository {
                 e: Exception
             ) {
 
-                writeLog(
-                    "initialize error=${e.message}"
+                log(
+                    "initialize error=${e}"
                 )
-
-                _profiles.value =
-                    emptyList()
             }
         }
     }
 
     private fun save() {
 
-        writeLog(
-            "save called count=${_profiles.value.size}"
+        val dump =
+            json.encodeToString(
+                _profiles.value
+            )
+
+        log(
+            "save() count=${_profiles.value.size}"
         )
 
         scope.launch {
@@ -127,15 +135,11 @@ object ProfileRepository {
                     .edit { prefs ->
 
                         prefs[
-                            ProfileKeys
-                                .PROFILES
-                        ] =
-                            json.encodeToString(
-                                _profiles.value
-                            )
+                            ProfileKeys.PROFILES
+                        ] = dump
                     }
 
-                writeLog(
+                log(
                     "save success"
                 )
 
@@ -143,29 +147,18 @@ object ProfileRepository {
                 e: Exception
             ) {
 
-                writeLog(
-                    "save error=${e.message}"
+                log(
+                    "save error=${e}"
                 )
             }
         }
-    }
-
-    fun getAll(): List<Profile> {
-        return _profiles.value
-    }
-
-    fun getSelected(): Profile? {
-        return _profiles.value
-            .firstOrNull {
-                it.selected
-            }
     }
 
     fun add(
         profile: Profile
     ) {
 
-        writeLog(
+        log(
             "add ${profile.name}"
         )
 
@@ -173,8 +166,8 @@ object ProfileRepository {
             it + profile
         }
 
-        writeLog(
-            "after add count=${_profiles.value.size}"
+        log(
+            "after add=${_profiles.value.size}"
         )
 
         save()
@@ -191,8 +184,10 @@ object ProfileRepository {
                 if (
                     it.id ==
                     profile.id
-                ) profile
-                else it
+                )
+                    profile
+                else
+                    it
             }
         }
 
@@ -234,17 +229,29 @@ object ProfileRepository {
         save()
     }
 
+    fun getSelected():
+        Profile? {
+
+        return _profiles
+            .value
+            .firstOrNull {
+                it.selected
+            }
+    }
+
+    fun count():
+        Int {
+
+        return _profiles
+            .value
+            .size
+    }
+
     fun clear() {
 
         _profiles.value =
             emptyList()
 
         save()
-    }
-
-    fun count(): Int {
-        return _profiles
-            .value
-            .size
     }
 }
