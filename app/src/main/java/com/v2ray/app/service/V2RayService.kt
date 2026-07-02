@@ -35,9 +35,13 @@ class V2RayService : Service() {
         fun observeState(cb: (ConnectionState) -> Unit) { callback = cb; instance?.let { cb(it.state.value) } }
         fun start(ctx: Context, profile: Profile) {
             Logger.writeLog("V2RayService start: ${profile.name}")
-            ctx.startForegroundService(Intent(ctx, V2RayService::class.java).apply {
-                putExtra("profile", profile as java.io.Serializable)
-            })
+            val intent = Intent(ctx, V2RayService::class.java)
+            intent.putExtra("profile", profile as java.io.Serializable)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ctx.startForegroundService(intent)
+            } else {
+                ctx.startService(intent)
+            }
         }
         fun stop(ctx: Context) { ctx.stopService(Intent(ctx, V2RayService::class.java)) }
         fun getInstance() = instance

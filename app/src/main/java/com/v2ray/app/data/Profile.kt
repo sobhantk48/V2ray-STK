@@ -11,7 +11,6 @@ import kotlinx.serialization.json.put
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonElement
 
 @KSerializable
 data class Profile(
@@ -33,6 +32,8 @@ data class Profile(
     val country: String = "",
     val city: String = ""
 ) : Serializable {
+
+    private val json = Json { prettyPrint = true }
 
     fun toV2RayConfig(): String {
         return when (type.uppercase()) {
@@ -80,7 +81,7 @@ data class Profile(
                 })
             }
         }
-        return Json.encodeToString(outbound)
+        return json.encodeToString(outbound)
     }
 
     private fun buildVmessConfig(): String {
@@ -102,7 +103,7 @@ data class Profile(
                 put("vnext", vnextArray)
             })
         }
-        return Json.encodeToString(outbound)
+        return json.encodeToString(outbound)
     }
 
     private fun buildTrojanConfig(): String {
@@ -120,7 +121,7 @@ data class Profile(
                 put("servers", serversArray)
             })
         }
-        return Json.encodeToString(outbound)
+        return json.encodeToString(outbound)
     }
 
     private fun buildShadowsocksConfig(): String {
@@ -138,7 +139,7 @@ data class Profile(
                 put("servers", serversArray)
             })
         }
-        return Json.encodeToString(outbound)
+        return json.encodeToString(outbound)
     }
 
     companion object {
