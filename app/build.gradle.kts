@@ -2,7 +2,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -37,6 +36,10 @@ android {
     buildFeatures {
         compose = true
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
 }
 
 dependencies {
@@ -58,7 +61,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // ✅ وابستگی JitPack حذف شد - فایل‌های Xray به‌صورت محلی در assets هستند
+    // فایل‌های Xray به‌صورت محلی در assets هستند
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     implementation("androidx.camera:camera-camera2:1.3.0")
