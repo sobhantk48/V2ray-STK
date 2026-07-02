@@ -68,45 +68,90 @@ fun DashboardScreen(
                     actions = {
                         var expanded by remember { mutableStateOf(false) }
                         IconButton({ expanded = true }) { Icon(Icons.Default.MoreVert, tint = WhiteText, contentDescription = "Admin") }
-                        DropdownMenu(expanded, { expanded = false }, containerColor = DarkSurface) {
-                            DropdownMenuItem({ Text("Admin Panel", color = WhiteText) }, onClick = { expanded = false; onAdminClick() })
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            containerColor = DarkSurface
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Admin Panel", color = WhiteText) },
+                                onClick = {
+                                    expanded = false
+                                    onAdminClick()
+                                }
+                            )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = DarkBackground
+                    )
                 )
             }
         ) { pad ->
-            Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceEvenly) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(DarkBackground)
+                    .padding(pad)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
                 ConnectionStatusSection(state)
-                ConnectButton(state.status) {
-                    when (state.status) {
-                        ConnectionStatus.IDLE, ConnectionStatus.DISCONNECTED -> current?.let { vm.connect(it) }
-                        ConnectionStatus.CONNECTED -> vm.disconnect()
-                        ConnectionStatus.ERROR -> { vm.clearError(); current?.let { vm.connect(it) } }
-                        else -> {}
+                ConnectButton(
+                    status = state.status,
+                    onClick = {
+                        when (state.status) {
+                            ConnectionStatus.IDLE, ConnectionStatus.DISCONNECTED -> current?.let { vm.connect(it) }
+                            ConnectionStatus.CONNECTED -> vm.disconnect()
+                            ConnectionStatus.ERROR -> {
+                                vm.clearError()
+                                current?.let { vm.connect(it) }
+                            }
+                            else -> {}
+                        }
                     }
-                }
+                )
                 CurrentProfileCard(current)
                 Text("v1.0.0", color = WhiteText.copy(0.5f), fontSize = 12.sp)
-                if (state.errorMessage != null) Text(state.errorMessage!!, color = RedError, fontSize = 14.sp, textAlign = TextAlign.Center)
+                if (state.errorMessage != null) {
+                    Text(
+                        state.errorMessage!!,
+                        color = RedError,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
 }
 
-@Composable fun DrawerItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable { onClick() }.padding(vertical = 12.dp), horizontalArrangement = Arrangement.Start) {
-        Icon(icon, contentDescription = null, tint = CyanAccent, modifier = Modifier.size(24.dp))
-        Spacer(Modifier.width(16.dp))
-        Text(text, color = WhiteText, fontSize = 16.sp)
+@Composable
+fun DrawerItem(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = CyanAccent,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(text = text, color = WhiteText, fontSize = 16.sp)
     }
 }
 
-@Composable fun ConnectionStatusSection(state: com.v2ray.app.data.ConnectionState) {
+@Composable
+fun ConnectionStatusSection(state: com.v2ray.app.data.ConnectionState) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            when (state.status) {
+            text = when (state.status) {
                 ConnectionStatus.IDLE -> "DISCONNECTED"
                 ConnectionStatus.CONNECTING -> "CONNECTING..."
                 ConnectionStatus.CONNECTED -> "CONNECTED"
@@ -118,11 +163,21 @@ fun DashboardScreen(
                 ConnectionStatus.ERROR -> RedError
                 else -> RedError
             },
-            fontSize = 22.sp, fontWeight = FontWeight.Bold
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold
         )
-        if (state.status == ConnectionStatus.CONNECTED) Text("CONNECTED: ${state.connectedTime}", color = WhiteText.copy(0.7f), fontSize = 14.sp)
-        Spacer(Modifier.height(8.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        if (state.status == ConnectionStatus.CONNECTED) {
+            Text(
+                text = "CONNECTED: ${state.connectedTime}",
+                color = WhiteText.copy(0.7f),
+                fontSize = 14.sp
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             SpeedItem("PING", "${state.ping} ms")
             SpeedItem("DOWNLOAD", "${state.downloadSpeed} Mbps")
             SpeedItem("UPLOAD", "${state.uploadSpeed} Mbps")
@@ -130,15 +185,22 @@ fun DashboardScreen(
     }
 }
 
-@Composable fun SpeedItem(label: String, value: String) {
+@Composable
+fun SpeedItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, color = CyanAccent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        Text(label, color = WhiteText.copy(0.6f), fontSize = 12.sp)
+        Text(text = value, color = CyanAccent, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text(text = label, color = WhiteText.copy(0.6f), fontSize = 12.sp)
     }
 }
 
-@Composable fun ConnectButton(status: ConnectionStatus, onClick: () -> Unit) {
-    Button(onClick, Modifier.fillMaxWidth(0.7f).height(64.dp).clip(RoundedCornerShape(16.dp)),
+@Composable
+fun ConnectButton(status: ConnectionStatus, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .height(64.dp)
+            .clip(RoundedCornerShape(16.dp)),
         colors = ButtonDefaults.buttonColors(
             containerColor = when (status) {
                 ConnectionStatus.CONNECTED -> GreenAccent
@@ -146,31 +208,73 @@ fun DashboardScreen(
                 ConnectionStatus.ERROR -> RedError
                 else -> PrimaryBlue
             }
-        ), elevation = ButtonDefaults.buttonElevation(8.dp), enabled = status != ConnectionStatus.CONNECTING
+        ),
+        elevation = ButtonDefaults.buttonElevation(8.dp),
+        enabled = status != ConnectionStatus.CONNECTING
     ) {
         Text(
-            when (status) {
+            text = when (status) {
                 ConnectionStatus.IDLE, ConnectionStatus.DISCONNECTED -> "CONNECT"
                 ConnectionStatus.CONNECTING -> "CONNECTING"
                 ConnectionStatus.CONNECTED -> "DISCONNECT"
                 ConnectionStatus.ERROR -> "RETRY"
             },
-            color = DarkBackground, fontWeight = FontWeight.Bold, fontSize = 20.sp
+            color = DarkBackground,
+            fontWeight = FontWeight.Bold,
+            fontSize = 20.sp
         )
     }
 }
 
-@Composable fun CurrentProfileCard(profile: Profile?) {
-    Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(16.dp)) {
-        profile?.let {
-            Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(it.name.ifEmpty { "No Name" }, color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("${it.type} • TLS${if (it.realityPublicKey.isNotBlank()) " • Reality" else ""}", color = CyanAccent, fontSize = 14.sp)
-                Text("${it.address}:${it.port}", color = WhiteText.copy(0.7f), fontSize = 12.sp)
-                Text("${it.ping} ms", color = GreenAccent, fontSize = 14.sp)
+@Composable
+fun CurrentProfileCard(profile: Profile?) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = DarkSurface
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        if (profile != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = profile.name.ifEmpty { "No Name" },
+                    color = WhiteText,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = profile.type + " • TLS" + if (profile.realityPublicKey.isNotBlank()) " • Reality" else "",
+                    color = CyanAccent,
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "${profile.address}:${profile.port}",
+                    color = WhiteText.copy(0.7f),
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = "${profile.ping} ms",
+                    color = GreenAccent,
+                    fontSize = 14.sp
+                )
             }
-        } ?: Card(Modifier.fillMaxWidth().padding(vertical = 8.dp), colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(16.dp)) {
-            Text("No profile selected", color = WhiteText.copy(0.5f), modifier = Modifier.fillMaxWidth().padding(16.dp), textAlign = TextAlign.Center)
+        } else {
+            Text(
+                text = "No profile selected",
+                color = WhiteText.copy(0.5f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
