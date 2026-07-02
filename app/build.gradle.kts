@@ -39,12 +39,6 @@ android {
     }
 }
 
-repositories {
-    flatDir {
-        dirs("libs")
-    }
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.activity:activity-compose:1.10.1")
