@@ -57,8 +57,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // V2Ray Core از JitPack
-    implementation("com.github.2dust:v2ray-core:5.14.0")
+    // ✅ وابستگی JitPack حذف شد - فایل‌های Xray به‌صورت محلی در assets هستند
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     implementation("androidx.camera:camera-camera2:1.3.0")
