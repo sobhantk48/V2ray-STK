@@ -22,24 +22,60 @@ fun AdminLoginScreen(onSuccess: () -> Unit, onBack: () -> Unit) {
     var pass by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Admin Login", color = WhiteText) }, navigationIcon = {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
-    }) { pad ->
-        Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Admin Login", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("Enter Admin Password", color = WhiteText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(24.dp))
-            OutlinedTextField(pass, { pass = it }, label = { Text("Password", color = WhiteText.copy(0.7f)) },
+            Spacer(modifier = Modifier.height(24.dp))
+            OutlinedTextField(
+                value = pass,
+                onValueChange = { pass = it },
+                label = { Text("Password", color = WhiteText.copy(0.7f)) },
                 visualTransformation = PasswordVisualTransformation(),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                    unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText),
-                modifier = Modifier.fillMaxWidth())
-            if (error != null) Text(error!!, color = RedError, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
-            Spacer(Modifier.height(24.dp))
-            Button({ if (AdminSession.validatePassword(pass)) { AdminSession.login(); onSuccess() } else error = "Invalid" },
-                Modifier.fillMaxWidth(0.6f), colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue), shape = RoundedCornerShape(12.dp)) {
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PrimaryBlue,
+                    unfocusedBorderColor = WhiteText.copy(0.3f),
+                    focusedTextColor = WhiteText,
+                    unfocusedTextColor = WhiteText
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (error != null) {
+                Text(error!!, color = RedError, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    if (AdminSession.validatePassword(pass)) {
+                        AdminSession.login()
+                        onSuccess()
+                    } else {
+                        error = "Invalid password"
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(0.6f),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                shape = RoundedCornerShape(12.dp)
+            ) {
                 Text("Login", color = WhiteText, fontWeight = FontWeight.Bold)
             }
         }

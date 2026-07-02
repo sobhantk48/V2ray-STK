@@ -33,11 +33,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun connect(profile: Profile) { V2RayService.start(getApplication(), profile) }
-    fun disconnect() { V2RayService.stop(getApplication()) }
-    fun select(id: String) { ProfileRepository.select(id); _current.value = ProfileRepository.getSelected() }
-    fun add(profile: Profile) { ProfileRepository.add(profile) }
-    fun update(profile: Profile) { ProfileRepository.update(profile) }
-    fun delete(id: String) { ProfileRepository.delete(id) }
-    fun clearError() { _state.update { it.copy(errorMessage = null) } }
+    fun connect(profile: Profile) {
+        V2RayService.start(getApplication(), profile)
+    }
+
+    fun disconnect() {
+        V2RayService.stop(getApplication())
+    }
+
+    fun select(id: String) {
+        ProfileRepository.select(id)
+        _current.value = ProfileRepository.getSelected()
+    }
+
+    fun add(profile: Profile) {
+        ProfileRepository.add(profile)
+    }
+
+    fun update(profile: Profile) {
+        ProfileRepository.update(profile)
+    }
+
+    fun delete(id: String) {
+        ProfileRepository.delete(id)
+    }
+
+    fun clearError() {
+        _state.update { it.copy(errorMessage = null) }
+    }
 }

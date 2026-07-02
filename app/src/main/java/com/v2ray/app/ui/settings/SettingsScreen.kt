@@ -25,21 +25,47 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
     var protocol by remember { mutableStateOf("VLESS") }
     val protocols = listOf("VLESS", "VMESS", "Trojan", "Shadowsocks")
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Settings", color = WhiteText) }, navigationIcon = {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
-    }) { pad ->
-        LazyColumn(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             item {
-                Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
                     Column(Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Default Protocol", color = WhiteText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         protocols.forEach { p ->
-                            Row(Modifier.fillMaxWidth().clickable { protocol = p }.padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { protocol = p }
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(p, color = WhiteText)
-                                if (protocol == p) Icon(Icons.Default.Check, tint = CyanAccent, contentDescription = null)
+                                if (protocol == p) {
+                                    Icon(Icons.Default.Check, tint = CyanAccent, contentDescription = null)
+                                }
                             }
                             Divider(color = WhiteText.copy(0.1f))
                         }
@@ -47,17 +73,36 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
                 }
             }
             listOf("Auto Connect", "Stay Connected", "Show Notification").forEach { title ->
-                item { SwitchSetting(title, false, {}) }
+                item {
+                    SwitchSetting(title, false, {})
+                }
             }
         }
     }
 }
 
-@Composable fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+@Composable
+fun SwitchSetting(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(title, color = WhiteText)
-            Switch(checked, onChange, colors = SwitchDefaults.colors(checkedThumbColor = CyanAccent, uncheckedThumbColor = Color.Gray))
+            Switch(
+                checked = checked,
+                onCheckedChange = onChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = CyanAccent,
+                    uncheckedThumbColor = Color.Gray
+                )
+            )
         }
     }
 }

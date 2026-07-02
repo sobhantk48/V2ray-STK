@@ -15,9 +15,11 @@ class V2RayManager(private val context: Context) {
         try {
             if (running) return@withContext Result.success(Unit)
 
+            // ایجاد پوشه assets در حافظه داخلی
             val assetsDir = File(context.filesDir, "assets")
             if (!assetsDir.exists()) assetsDir.mkdirs()
 
+            // کپی فایل‌های باینری و دیتابیس
             copyAssetToFile("xray", File(assetsDir, "xray"))
             copyAssetToFile("geoip.dat", File(assetsDir, "geoip.dat"))
             copyAssetToFile("geosite.dat", File(assetsDir, "geosite.dat"))
@@ -28,9 +30,11 @@ class V2RayManager(private val context: Context) {
             }
             xrayFile.setExecutable(true)
 
+            // ذخیره کانفیگ
             val configFile = File(context.filesDir, "v2ray_config.json")
             configFile.writeText(configJson)
 
+            // ساخت دستور اجرا
             val command = arrayOf(
                 xrayFile.absolutePath,
                 "run",
@@ -46,18 +50,18 @@ class V2RayManager(private val context: Context) {
 
             process = processBuilder.start()
 
+            // خواندن خروجی در ترد جداگانه
             Thread {
                 try {
                     val reader = process?.inputStream?.bufferedReader()
                     reader?.forEachLine { line ->
                         Logger.writeLog("[Xray] $line")
                     }
-                } catch (_: Exception) {}
+                } catch (_: Exception) { }
             }.start()
 
             running = true
             Logger.writeLog("Xray started successfully")
-
             Result.success(Unit)
         } catch (e: Exception) {
             Logger.writeError("Xray start failed", e)

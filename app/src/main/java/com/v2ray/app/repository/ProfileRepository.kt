@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 
 private val Context.dataStore by preferencesDataStore(name = "v2ray_profiles")
 
@@ -46,7 +46,9 @@ object ProfileRepository {
     private suspend fun saveToStorage() {
         try {
             val raw = json.encodeToString(_profiles.value)
-            context.dataStore.edit { it[stringPreferencesKey("profiles")] = raw }
+            context.dataStore.edit { prefs ->
+                prefs[stringPreferencesKey("profiles")] = raw
+            }
         } catch (e: Exception) {
             Logger.writeError("Save profiles failed", e)
         }
@@ -54,10 +56,36 @@ object ProfileRepository {
 
     private fun save() = CoroutineScope(Dispatchers.IO).launch { saveToStorage() }
 
-    fun add(profile: Profile) { _profiles.update { it + profile }; save(); Logger.writeLog("Added: ${profile.name}") }
-    fun update(profile: Profile) { _profiles.update { list -> list.map { if (it.id == profile.id) profile else it } }; save() }
-    fun delete(id: String) { _profiles.update { it.filterNot { it.id == id } }; save(); Logger.writeLog("Deleted: $id") }
-    fun select(id: String) { _profiles.update { list -> list.map { it.copy(selected = it.id == id) } }; save() }
+    fun add(profile: Profile) {
+        _profiles.update { it + profile }
+        save()
+        Logger.writeLog("Added: ${profile.name}")
+    }
+
+    fun update(profile: Profile) {
+        _profiles.update { list ->
+            list.map { if (it.id == profile.id) profile else it }
+        }
+        save()
+    }
+
+    fun delete(id: String) {
+        _profiles.update { it.filterNot { it.id == id } }
+        save()
+        Logger.writeLog("Deleted: $id")
+    }
+
+    fun select(id: String) {
+        _profiles.update { list ->
+            list.map { it.copy(selected = it.id == id) }
+        }
+        save()
+    }
+
     fun getSelected(): Profile? = _profiles.value.firstOrNull { it.selected }
-    fun clear() { _profiles.value = emptyList(); save() }
+
+    fun clear() {
+        _profiles.value = emptyList()
+        save()
+    }
 }

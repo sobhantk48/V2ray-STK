@@ -22,40 +22,88 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation() {
-    val nav = rememberNavController()
-    val drawer = rememberDrawerState(DrawerValue.Closed)
+    val navController = rememberNavController()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val vm: MainViewModel = viewModel()
+    val viewModel: MainViewModel = viewModel()
     val adminLoggedIn by AdminSession.loggedIn.collectAsState()
 
-    NavHost(nav, AppRoutes.SPLASH) {
+    NavHost(
+        navController = navController,
+        startDestination = AppRoutes.SPLASH
+    ) {
         composable(AppRoutes.SPLASH) {
-            SplashScreen { nav.navigate(AppRoutes.HOME) { popUpTo(AppRoutes.SPLASH) { inclusive = true } } }
+            SplashScreen(
+                onFinish = {
+                    navController.navigate(AppRoutes.HOME) {
+                        popUpTo(AppRoutes.SPLASH) { inclusive = true }
+                    }
+                }
+            )
         }
         composable(AppRoutes.HOME) {
             DashboardScreen(
-                nav, drawer, vm,
+                nav = navController,
+                drawer = drawerState,
+                vm = viewModel,
                 onAdminClick = {
-                    scope.launch { drawer.close() }
-                    nav.navigate(if (adminLoggedIn) AppRoutes.ADMIN else AppRoutes.ADMIN_LOGIN)
+                    scope.launch { drawerState.close() }
+                    navController.navigate(
+                        if (adminLoggedIn) AppRoutes.ADMIN else AppRoutes.ADMIN_LOGIN
+                    )
                 },
-                onNavigateToSettings = { scope.launch { drawer.close() }; nav.navigate(AppRoutes.SETTINGS) },
-                onNavigateToLocations = { scope.launch { drawer.close() }; nav.navigate(AppRoutes.LOCATION_LIST) },
-                onNavigateToAbout = { scope.launch { drawer.close() }; nav.navigate(AppRoutes.ABOUT) },
-                onNavigateToLogs = { scope.launch { drawer.close() }; nav.navigate(AppRoutes.LOGS) }
+                onNavigateToSettings = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AppRoutes.SETTINGS)
+                },
+                onNavigateToLocations = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AppRoutes.LOCATION_LIST)
+                },
+                onNavigateToAbout = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AppRoutes.ABOUT)
+                },
+                onNavigateToLogs = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(AppRoutes.LOGS)
+                }
             )
         }
         composable(AppRoutes.ADMIN_LOGIN) {
             AdminLoginScreen(
-                onSuccess = { nav.navigate(AppRoutes.ADMIN) { popUpTo(AppRoutes.ADMIN_LOGIN) { inclusive = true } } },
-                onBack = { nav.popBackStack() }
+                onSuccess = {
+                    navController.navigate(AppRoutes.ADMIN) {
+                        popUpTo(AppRoutes.ADMIN_LOGIN) { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
-        composable(AppRoutes.ADMIN) { AdminScreen(vm, onBack = { nav.popBackStack() }) }
-        composable(AppRoutes.SETTINGS) { SettingsScreen(vm, onBack = { nav.popBackStack() }) }
-        composable(AppRoutes.LOCATION_LIST) { LocationListScreen(vm, onBack = { nav.popBackStack() }) }
-        composable(AppRoutes.ABOUT) { AboutScreen(onBack = { nav.popBackStack() }) }
-        composable(AppRoutes.LOGS) { LogViewerScreen(onBack = { nav.popBackStack() }) }
+        composable(AppRoutes.ADMIN) {
+            AdminScreen(
+                vm = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(AppRoutes.SETTINGS) {
+            SettingsScreen(
+                vm = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(AppRoutes.LOCATION_LIST) {
+            LocationListScreen(
+                vm = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(AppRoutes.ABOUT) {
+            AboutScreen(onBack = { navController.popBackStack() })
+        }
+        composable(AppRoutes.LOGS) {
+            LogViewerScreen(onBack = { navController.popBackStack() })
+        }
     }
 }

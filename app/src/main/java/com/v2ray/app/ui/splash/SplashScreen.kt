@@ -14,8 +14,16 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {
-    LaunchedEffect(Unit) { delay(1500); onFinish() }
-    Box(Modifier.fillMaxSize().background(DarkBackground), Alignment.Center) {
+    LaunchedEffect(Unit) {
+        delay(1500)
+        onFinish()
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DarkBackground),
+        contentAlignment = Alignment.Center
+    ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("V2RAY STK", color = PrimaryBlue, fontSize = 36.sp, fontWeight = FontWeight.Bold)
             Text("FAST • SECURE • STABLE", color = CyanAccent, fontSize = 16.sp)

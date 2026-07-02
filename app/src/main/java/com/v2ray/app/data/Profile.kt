@@ -2,7 +2,6 @@ package com.v2ray.app.data
 
 import android.util.Base64
 import java.io.Serializable
-import kotlinx.serialization.Serializable as KSerializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -10,9 +9,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.JsonObject
 
-@KSerializable
 data class Profile(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
@@ -33,113 +30,97 @@ data class Profile(
     val city: String = ""
 ) : Serializable {
 
-    private val json = Json { prettyPrint = true }
-
     fun toV2RayConfig(): String {
-        return when (type.uppercase()) {
-            "VLESS" -> buildVlessConfig()
-            "VMESS" -> buildVmessConfig()
-            "TROJAN" -> buildTrojanConfig()
-            "SHADOWSOCKS" -> buildShadowsocksConfig()
-            else -> buildVlessConfig()
+        val json = Json { prettyPrint = true }
+        val outbound = when (type.uppercase()) {
+            "VLESS" -> buildVlessJson()
+            "VMESS" -> buildVmessJson()
+            "TROJAN" -> buildTrojanJson()
+            "SHADOWSOCKS" -> buildShadowsocksJson()
+            else -> buildVlessJson()
         }
+        return json.encodeToString(outbound)
     }
 
-    private fun buildVlessConfig(): String {
-        val outbound = buildJsonObject {
-            put("protocol", "vless")
-            put("settings", buildJsonObject {
-                val vnextArray = JsonArray(listOf(
-                    buildJsonObject {
-                        put("address", JsonPrimitive(address))
-                        put("port", JsonPrimitive(port))
-                        put("users", JsonArray(listOf(
-                            buildJsonObject {
-                                put("id", JsonPrimitive(uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" }))
-                                put("flow", JsonPrimitive(flow.ifEmpty { "none" }))
-                                put("encryption", JsonPrimitive("none"))
-                            }
-                        )))
-                    }
-                ))
-                put("vnext", vnextArray)
-            })
-            if (sni.isNotBlank() || realityPublicKey.isNotBlank()) {
-                put("streamSettings", buildJsonObject {
-                    put("network", JsonPrimitive("tcp"))
-                    put("security", JsonPrimitive(if (realityPublicKey.isNotBlank()) "reality" else "tls"))
-                    put("realitySettings", buildJsonObject {
-                        put("serverNames", JsonArray(listOf(JsonPrimitive(sni.ifEmpty { address }))))
-                        put("privateKey", JsonPrimitive(""))
-                        put("shortIds", JsonArray(listOf(JsonPrimitive(realityShortId.ifEmpty { "0000000000000000" }))))
-                        put("publicKey", JsonPrimitive(realityPublicKey))
-                    })
-                    put("tlsSettings", buildJsonObject {
-                        put("serverName", JsonPrimitive(sni.ifEmpty { address }))
-                        put("fingerprint", JsonPrimitive(fingerprint))
-                    })
+    private fun buildVlessJson() = buildJsonObject {
+        put("protocol", "vless")
+        put("settings", buildJsonObject {
+            put("vnext", JsonArray(listOf(
+                buildJsonObject {
+                    put("address", JsonPrimitive(address))
+                    put("port", JsonPrimitive(port))
+                    put("users", JsonArray(listOf(
+                        buildJsonObject {
+                            put("id", JsonPrimitive(uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" }))
+                            put("flow", JsonPrimitive(flow.ifEmpty { "none" }))
+                            put("encryption", JsonPrimitive("none"))
+                        }
+                    )))
+                }
+            )))
+        })
+        if (sni.isNotBlank() || realityPublicKey.isNotBlank()) {
+            put("streamSettings", buildJsonObject {
+                put("network", JsonPrimitive("tcp"))
+                put("security", JsonPrimitive(if (realityPublicKey.isNotBlank()) "reality" else "tls"))
+                put("realitySettings", buildJsonObject {
+                    put("serverNames", JsonArray(listOf(JsonPrimitive(sni.ifEmpty { address }))))
+                    put("privateKey", JsonPrimitive(""))
+                    put("shortIds", JsonArray(listOf(JsonPrimitive(realityShortId.ifEmpty { "0000000000000000" }))))
+                    put("publicKey", JsonPrimitive(realityPublicKey))
                 })
-            }
-        }
-        return json.encodeToString(outbound)
-    }
-
-    private fun buildVmessConfig(): String {
-        val outbound = buildJsonObject {
-            put("protocol", "vmess")
-            put("settings", buildJsonObject {
-                val vnextArray = JsonArray(listOf(
-                    buildJsonObject {
-                        put("address", JsonPrimitive(address))
-                        put("port", JsonPrimitive(port))
-                        put("users", JsonArray(listOf(
-                            buildJsonObject {
-                                put("id", JsonPrimitive(uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" }))
-                                put("security", JsonPrimitive("auto"))
-                            }
-                        )))
-                    }
-                ))
-                put("vnext", vnextArray)
+                put("tlsSettings", buildJsonObject {
+                    put("serverName", JsonPrimitive(sni.ifEmpty { address }))
+                    put("fingerprint", JsonPrimitive(fingerprint))
+                })
             })
         }
-        return json.encodeToString(outbound)
     }
 
-    private fun buildTrojanConfig(): String {
-        val outbound = buildJsonObject {
-            put("protocol", "trojan")
-            put("settings", buildJsonObject {
-                val serversArray = JsonArray(listOf(
-                    buildJsonObject {
-                        put("address", JsonPrimitive(address))
-                        put("port", JsonPrimitive(port))
-                        put("password", JsonPrimitive(uuid.ifEmpty { "password" }))
-                        put("flow", JsonPrimitive(flow))
-                    }
-                ))
-                put("servers", serversArray)
-            })
-        }
-        return json.encodeToString(outbound)
+    private fun buildVmessJson() = buildJsonObject {
+        put("protocol", "vmess")
+        put("settings", buildJsonObject {
+            put("vnext", JsonArray(listOf(
+                buildJsonObject {
+                    put("address", JsonPrimitive(address))
+                    put("port", JsonPrimitive(port))
+                    put("users", JsonArray(listOf(
+                        buildJsonObject {
+                            put("id", JsonPrimitive(uuid.ifEmpty { "00000000-0000-0000-0000-000000000000" }))
+                            put("security", JsonPrimitive("auto"))
+                        }
+                    )))
+                }
+            )))
+        })
     }
 
-    private fun buildShadowsocksConfig(): String {
-        val outbound = buildJsonObject {
-            put("protocol", "shadowsocks")
-            put("settings", buildJsonObject {
-                val serversArray = JsonArray(listOf(
-                    buildJsonObject {
-                        put("address", JsonPrimitive(address))
-                        put("port", JsonPrimitive(port))
-                        put("method", JsonPrimitive(encryption.ifEmpty { "chacha20-ietf-poly1305" }))
-                        put("password", JsonPrimitive(uuid.ifEmpty { "password" }))
-                    }
-                ))
-                put("servers", serversArray)
-            })
-        }
-        return json.encodeToString(outbound)
+    private fun buildTrojanJson() = buildJsonObject {
+        put("protocol", "trojan")
+        put("settings", buildJsonObject {
+            put("servers", JsonArray(listOf(
+                buildJsonObject {
+                    put("address", JsonPrimitive(address))
+                    put("port", JsonPrimitive(port))
+                    put("password", JsonPrimitive(uuid.ifEmpty { "password" }))
+                    put("flow", JsonPrimitive(flow))
+                }
+            )))
+        })
+    }
+
+    private fun buildShadowsocksJson() = buildJsonObject {
+        put("protocol", "shadowsocks")
+        put("settings", buildJsonObject {
+            put("servers", JsonArray(listOf(
+                buildJsonObject {
+                    put("address", JsonPrimitive(address))
+                    put("port", JsonPrimitive(port))
+                    put("method", JsonPrimitive(encryption.ifEmpty { "chacha20-ietf-poly1305" }))
+                    put("password", JsonPrimitive(uuid.ifEmpty { "password" }))
+                }
+            )))
+        })
     }
 
     companion object {

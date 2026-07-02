@@ -26,50 +26,121 @@ fun AdminScreen(vm: MainViewModel, onBack: () -> Unit) {
     var editProfile by remember { mutableStateOf<Profile?>(null) }
     var showChangePass by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Admin Panel", color = WhiteText) }, navigationIcon = {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, actions = {
-            IconButton({ showChangePass = true }) { Icon(Icons.Default.Lock, tint = WhiteText, contentDescription = "Change Password") }
-        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
-    }, floatingActionButton = {
-        FloatingActionButton({ showAdd = true }, containerColor = PrimaryBlue) {
-            Icon(Icons.Default.Add, tint = WhiteText, contentDescription = "Add")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Admin Panel", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showChangePass = true }) {
+                        Icon(Icons.Default.Lock, tint = WhiteText, contentDescription = "Change Password")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAdd = true },
+                containerColor = PrimaryBlue
+            ) {
+                Icon(Icons.Default.Add, tint = WhiteText, contentDescription = "Add")
+            }
         }
-    }) { pad ->
-        LazyColumn(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             if (profiles.isEmpty()) {
                 item {
-                    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
-                        Text("No profiles added yet.\nTap + to add one.", color = WhiteText.copy(0.7f),
-                            modifier = Modifier.fillMaxWidth().padding(24.dp), textAlign = TextAlign.Center)
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "No profiles added yet.\nTap + to add one.",
+                            color = WhiteText.copy(0.7f),
+                            modifier = Modifier.fillMaxWidth().padding(24.dp),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             } else {
-                items(profiles.size) {
-                    val p = profiles[it]
-                    AdminProfileCard(p, onEdit = { editProfile = p }, onDelete = { vm.delete(p.id) })
+                items(profiles.size) { index ->
+                    val p = profiles[index]
+                    AdminProfileCard(
+                        profile = p,
+                        onEdit = { editProfile = p },
+                        onDelete = { vm.delete(p.id) }
+                    )
                 }
             }
         }
     }
 
-    if (showAdd) AddConfigDialog(onDismiss = { showAdd = false }, onAdd = { vm.add(it); showAdd = false })
-    editProfile?.let { EditProfileDialog(it, onDismiss = { editProfile = null }, onSave = { vm.update(it); editProfile = null }) }
-    if (showChangePass) ChangePasswordDialog(onDismiss = { showChangePass = false }, onSuccess = { showChangePass = false })
+    if (showAdd) {
+        AddConfigDialog(
+            onDismiss = { showAdd = false },
+            onAdd = {
+                vm.add(it)
+                showAdd = false
+            }
+        )
+    }
+    editProfile?.let { profile ->
+        EditProfileDialog(
+            profile = profile,
+            onDismiss = { editProfile = null },
+            onSave = {
+                vm.update(it)
+                editProfile = null
+            }
+        )
+    }
+    if (showChangePass) {
+        ChangePasswordDialog(
+            onDismiss = { showChangePass = false },
+            onSuccess = { showChangePass = false }
+        )
+    }
 }
 
-@Composable fun AdminProfileCard(profile: Profile, onEdit: () -> Unit, onDelete: () -> Unit) {
-    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface), shape = RoundedCornerShape(12.dp)) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+@Composable
+fun AdminProfileCard(profile: Profile, onEdit: () -> Unit, onDelete: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = DarkSurface),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Column {
                 Text(profile.name.ifEmpty { "Unnamed" }, color = WhiteText, fontWeight = FontWeight.Bold)
                 Text("${profile.type} • ${profile.address}:${profile.port}", color = CyanAccent, fontSize = 12.sp)
-                if (profile.selected) Text("★ SELECTED", color = GreenAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                if (profile.selected) {
+                    Text("★ SELECTED", color = GreenAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
             }
             Row {
-                IconButton(onEdit) { Icon(Icons.Default.Edit, tint = CyanAccent, contentDescription = "Edit") }
-                IconButton(onDelete) { Icon(Icons.Default.Delete, tint = RedError, contentDescription = "Delete") }
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, tint = CyanAccent, contentDescription = "Edit")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, tint = RedError, contentDescription = "Delete")
+                }
             }
         }
     }

@@ -16,13 +16,28 @@ import com.v2ray.app.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("About Us", color = WhiteText) }, navigationIcon = {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
-    }) { pad ->
-        Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("About Us", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("V2RAY STK", color = PrimaryBlue, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             Text("FAST • SECURE • STABLE", color = CyanAccent, fontSize = 18.sp)
             Spacer(Modifier.height(24.dp))

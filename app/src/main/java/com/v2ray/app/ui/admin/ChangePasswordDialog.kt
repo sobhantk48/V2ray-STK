@@ -19,36 +19,83 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
     var confirm by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Change Password", color = WhiteText) },
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Password", color = WhiteText) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(old, { old = it }, label = { Text("Old Password", color = WhiteText.copy(0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                OutlinedTextField(new, { new = it }, label = { Text("New Password", color = WhiteText.copy(0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                OutlinedTextField(confirm, { confirm = it }, label = { Text("Confirm New Password", color = WhiteText.copy(0.7f)) },
-                    visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                if (error != null) Text(error!!, color = RedError, fontSize = 14.sp)
+                OutlinedTextField(
+                    value = old,
+                    onValueChange = { old = it },
+                    label = { Text("Old Password", color = WhiteText.copy(0.7f)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = WhiteText.copy(0.3f),
+                        focusedTextColor = WhiteText,
+                        unfocusedTextColor = WhiteText
+                    )
+                )
+                OutlinedTextField(
+                    value = new,
+                    onValueChange = { new = it },
+                    label = { Text("New Password", color = WhiteText.copy(0.7f)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = WhiteText.copy(0.3f),
+                        focusedTextColor = WhiteText,
+                        unfocusedTextColor = WhiteText
+                    )
+                )
+                OutlinedTextField(
+                    value = confirm,
+                    onValueChange = { confirm = it },
+                    label = { Text("Confirm New Password", color = WhiteText.copy(0.7f)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = WhiteText.copy(0.3f),
+                        focusedTextColor = WhiteText,
+                        unfocusedTextColor = WhiteText
+                    )
+                )
+                if (error != null) {
+                    Text(error!!, color = RedError, fontSize = 14.sp)
+                }
             }
         },
         confirmButton = {
-            Button({
-                when {
-                    new.length < 4 -> error = "Password must be at least 4 characters"
-                    new != confirm -> error = "Passwords do not match"
-                    else -> if (AdminSession.changePassword(old, new)) { onSuccess() } else error = "Old password is incorrect"
-                }
-            }, colors = ButtonDefaults.buttonColors(PrimaryBlue), shape = RoundedCornerShape(8.dp)) {
+            Button(
+                onClick = {
+                    when {
+                        new.length < 4 -> error = "Password must be at least 4 characters"
+                        new != confirm -> error = "Passwords do not match"
+                        else -> {
+                            if (AdminSession.changePassword(old, new)) {
+                                onSuccess()
+                            } else {
+                                error = "Old password is incorrect"
+                            }
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(PrimaryBlue),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text("Change", color = WhiteText, fontWeight = FontWeight.Bold)
             }
         },
-        dismissButton = { TextButton(onDismiss) { Text("Cancel", color = WhiteText) } },
-        containerColor = DarkSurface, titleContentColor = WhiteText, textContentColor = WhiteText
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = WhiteText)
+            }
+        },
+        containerColor = DarkSurface,
+        titleContentColor = WhiteText,
+        textContentColor = WhiteText
     )
 }

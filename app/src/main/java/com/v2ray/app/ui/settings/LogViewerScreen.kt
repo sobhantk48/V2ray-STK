@@ -26,20 +26,52 @@ fun LogViewerScreen(onBack: () -> Unit) {
         }
     }
 
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("Log Viewer", color = WhiteText) }, navigationIcon = {
-            IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, actions = {
-            IconButton({ Logger.clearLogs(); logs = "Logs cleared" }) {
-                Icon(Icons.Default.Delete, tint = RedError, contentDescription = "Clear")
-            }
-        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
-    }) { pad ->
-        Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad)) {
-            Text("Log File: ${Logger.getLogFilePath() ?: "Unknown"}", color = WhiteText.copy(0.7f), fontSize = 12.sp,
-                modifier = Modifier.padding(16.dp))
-            LazyColumn(Modifier.fillMaxSize().padding(8.dp)) {
-                item { Text(logs, color = WhiteText.copy(0.9f), fontSize = 10.sp, modifier = Modifier.padding(8.dp)) }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Log Viewer", color = WhiteText) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        Logger.clearLogs()
+                        logs = "Logs cleared"
+                    }) {
+                        Icon(Icons.Default.Delete, tint = RedError, contentDescription = "Clear")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground)
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DarkBackground)
+                .padding(padding)
+        ) {
+            Text(
+                "Log File: ${Logger.getLogFilePath() ?: "Unknown"}",
+                color = WhiteText.copy(0.7f),
+                fontSize = 12.sp,
+                modifier = Modifier.padding(16.dp)
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+            ) {
+                item {
+                    Text(
+                        logs,
+                        color = WhiteText.copy(0.9f),
+                        fontSize = 10.sp,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
             }
         }
     }

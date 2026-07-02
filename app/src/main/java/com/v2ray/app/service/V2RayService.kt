@@ -32,7 +32,11 @@ class V2RayService : Service() {
         private var instance: V2RayService? = null
         private var callback: ((ConnectionState) -> Unit)? = null
 
-        fun observeState(cb: (ConnectionState) -> Unit) { callback = cb; instance?.let { cb(it.state.value) } }
+        fun observeState(cb: (ConnectionState) -> Unit) {
+            callback = cb
+            instance?.let { cb(it.state.value) }
+        }
+
         fun start(ctx: Context, profile: Profile) {
             Logger.writeLog("V2RayService start: ${profile.name}")
             val intent = Intent(ctx, V2RayService::class.java)
@@ -43,7 +47,11 @@ class V2RayService : Service() {
                 ctx.startService(intent)
             }
         }
-        fun stop(ctx: Context) { ctx.stopService(Intent(ctx, V2RayService::class.java)) }
+
+        fun stop(ctx: Context) {
+            ctx.stopService(Intent(ctx, V2RayService::class.java))
+        }
+
         fun getInstance() = instance
     }
 
@@ -79,13 +87,19 @@ class V2RayService : Service() {
                     updateNotification("Connected to ${profile.name}")
                 } else {
                     val err = result.exceptionOrNull()
-                    _state.value = _state.value.copy(status = ConnectionStatus.ERROR, errorMessage = err?.message ?: "Failed")
+                    _state.value = _state.value.copy(
+                        status = ConnectionStatus.ERROR,
+                        errorMessage = err?.message ?: "Connection failed"
+                    )
                     callback?.invoke(_state.value)
                     updateNotification("Connection failed")
                 }
             } catch (e: Exception) {
                 Logger.writeError("Connect error", e)
-                _state.value = _state.value.copy(status = ConnectionStatus.ERROR, errorMessage = e.message)
+                _state.value = _state.value.copy(
+                    status = ConnectionStatus.ERROR,
+                    errorMessage = e.message
+                )
                 callback?.invoke(_state.value)
                 updateNotification("Error: ${e.message}")
             }
@@ -111,23 +125,41 @@ class V2RayService : Service() {
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "V2RAY STK", NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "V2RAY STK",
+                NotificationManager.IMPORTANCE_LOW
+            )
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }
 
-    private fun buildNotification(text: String) = NotificationCompat.Builder(this, CHANNEL_ID)
-        .setContentTitle("V2RAY STK")
-        .setContentText(text)
-        .setSmallIcon(R.drawable.ic_notification)
-        .setContentIntent(PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-        .setOngoing(true).build()
+    private fun buildNotification(text: String) =
+        NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("V2RAY STK")
+            .setContentText(text)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    Intent(this, MainActivity::class.java),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+            .setOngoing(true)
+            .build()
 
     private fun updateNotification(text: String) {
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(NOTIF_ID, buildNotification(text))
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .notify(NOTIF_ID, buildNotification(text))
     }
 
-    override fun onDestroy() { instance = null; disconnect(); super.onDestroy() }
+    override fun onDestroy() {
+        instance = null
+        disconnect()
+        super.onDestroy()
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
 }

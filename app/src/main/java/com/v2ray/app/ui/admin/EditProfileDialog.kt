@@ -19,45 +19,121 @@ fun EditProfileDialog(profile: Profile, onDismiss: () -> Unit, onSave: (Profile)
     var type by remember { mutableStateOf(profile.type) }
     var uuid by remember { mutableStateOf(profile.uuid) }
 
-    AlertDialog(onDismissRequest = onDismiss, title = { Text("Edit Profile", color = WhiteText) },
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Profile", color = WhiteText) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(name, { name = it }, label = { Text("Name", color = WhiteText.copy(0.7f)) }, modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                OutlinedTextField(addr, { addr = it }, label = { Text("Address", color = WhiteText.copy(0.7f)) }, modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                        unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name", color = WhiteText.copy(0.7f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = WhiteText.copy(0.3f),
+                        focusedTextColor = WhiteText,
+                        unfocusedTextColor = WhiteText
+                    )
+                )
+                OutlinedTextField(
+                    value = addr,
+                    onValueChange = { addr = it },
+                    label = { Text("Address", color = WhiteText.copy(0.7f)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = PrimaryBlue,
+                        unfocusedBorderColor = WhiteText.copy(0.3f),
+                        focusedTextColor = WhiteText,
+                        unfocusedTextColor = WhiteText
+                    )
+                )
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(port, { port = it }, label = { Text("Port", color = WhiteText.copy(0.7f)) }, modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                            unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                    OutlinedTextField(uuid, { uuid = it }, label = { Text("UUID", color = WhiteText.copy(0.7f)) }, modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                            unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
+                    OutlinedTextField(
+                        value = port,
+                        onValueChange = { port = it },
+                        label = { Text("Port", color = WhiteText.copy(0.7f)) },
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryBlue,
+                            unfocusedBorderColor = WhiteText.copy(0.3f),
+                            focusedTextColor = WhiteText,
+                            unfocusedTextColor = WhiteText
+                        )
+                    )
+                    OutlinedTextField(
+                        value = uuid,
+                        onValueChange = { uuid = it },
+                        label = { Text("UUID", color = WhiteText.copy(0.7f)) },
+                        modifier = Modifier.weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryBlue,
+                            unfocusedBorderColor = WhiteText.copy(0.3f),
+                            focusedTextColor = WhiteText,
+                            unfocusedTextColor = WhiteText
+                        )
+                    )
                 }
                 var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(expanded, { expanded = it }) {
-                    OutlinedTextField(type, {}, readOnly = true, label = { Text("Protocol", color = WhiteText.copy(0.7f)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }, modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryBlue,
-                            unfocusedBorderColor = WhiteText.copy(0.3f), focusedTextColor = WhiteText, unfocusedTextColor = WhiteText))
-                    ExposedDropdownMenu(expanded, { expanded = false }) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Protocol", color = WhiteText.copy(0.7f)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryBlue,
+                            unfocusedBorderColor = WhiteText.copy(0.3f),
+                            focusedTextColor = WhiteText,
+                            unfocusedTextColor = WhiteText
+                        )
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
                         listOf("VLESS", "VMESS", "Trojan", "Shadowsocks").forEach {
-                            DropdownMenuItem({ Text(it, color = WhiteText) }, onClick = { type = it; expanded = false })
+                            DropdownMenuItem(
+                                text = { Text(it, color = WhiteText) },
+                                onClick = {
+                                    type = it
+                                    expanded = false
+                                }
+                            )
                         }
                     }
                 }
             }
         },
         confirmButton = {
-            Button({
-                onSave(profile.copy(name = name, address = addr, port = port.toIntOrNull() ?: 443, type = type, uuid = uuid))
-            }, colors = ButtonDefaults.buttonColors(PrimaryBlue), shape = RoundedCornerShape(8.dp)) {
+            Button(
+                onClick = {
+                    onSave(profile.copy(
+                        name = name,
+                        address = addr,
+                        port = port.toIntOrNull() ?: 443,
+                        type = type,
+                        uuid = uuid
+                    ))
+                },
+                colors = ButtonDefaults.buttonColors(PrimaryBlue),
+                shape = RoundedCornerShape(8.dp)
+            ) {
                 Text("Save", color = WhiteText, fontWeight = FontWeight.Bold)
             }
         },
-        dismissButton = { TextButton(onDismiss) { Text("Cancel", color = WhiteText) } },
-        containerColor = DarkSurface, titleContentColor = WhiteText, textContentColor = WhiteText
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = WhiteText)
+            }
+        },
+        containerColor = DarkSurface,
+        titleContentColor = WhiteText,
+        textContentColor = WhiteText
     )
 }
