@@ -10,9 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        flatDir {
-            dirs("libs")
-        }
+        // flatDir دیگر نیاز نیست
     }
 }
 rootProject.name = "V2raySTK"
