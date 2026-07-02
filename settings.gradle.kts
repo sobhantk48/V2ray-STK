@@ -10,7 +10,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // JitPack دیگر نیاز نیست اما برای دیگر کتابخانه‌ها نگه می‌داریم
         maven { url = uri("https://jitpack.io") }
     }
 }

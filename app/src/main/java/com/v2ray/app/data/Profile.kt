@@ -2,16 +2,15 @@ package com.v2ray.app.data
 
 import android.util.Base64
 import java.io.Serializable
-import kotlinx.serialization.Serializable as KSerializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonPrimitive
 
-@KSerializable
 data class Profile(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
@@ -40,11 +39,11 @@ data class Profile(
             "SHADOWSOCKS" -> buildShadowsocksJson()
             else -> buildVlessJson()
         }
-        // استفاده از toString() به جای encodeToString
+        // تبدیل JsonObject به رشته JSON
         return outbound.toString()
     }
 
-    private fun buildVlessJson() = buildJsonObject {
+    private fun buildVlessJson(): JsonObject = buildJsonObject {
         put("protocol", "vless")
         put("settings", buildJsonObject {
             put("vnext", JsonArray(listOf(
@@ -79,7 +78,7 @@ data class Profile(
         }
     }
 
-    private fun buildVmessJson() = buildJsonObject {
+    private fun buildVmessJson(): JsonObject = buildJsonObject {
         put("protocol", "vmess")
         put("settings", buildJsonObject {
             put("vnext", JsonArray(listOf(
@@ -97,7 +96,7 @@ data class Profile(
         })
     }
 
-    private fun buildTrojanJson() = buildJsonObject {
+    private fun buildTrojanJson(): JsonObject = buildJsonObject {
         put("protocol", "trojan")
         put("settings", buildJsonObject {
             put("servers", JsonArray(listOf(
@@ -111,7 +110,7 @@ data class Profile(
         })
     }
 
-    private fun buildShadowsocksJson() = buildJsonObject {
+    private fun buildShadowsocksJson(): JsonObject = buildJsonObject {
         put("protocol", "shadowsocks")
         put("settings", buildJsonObject {
             put("servers", JsonArray(listOf(
