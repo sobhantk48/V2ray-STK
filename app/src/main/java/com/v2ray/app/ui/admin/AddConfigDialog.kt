@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.v2ray.app.data.Profile
 import com.v2ray.app.ui.theme.*
 
@@ -62,7 +63,6 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                                     parseError = "Please paste JSON or link"
                                     return@Button
                                 }
-                                // تلاش برای لینک
                                 Profile.fromLink(jsonInput)?.let { p ->
                                     name = p.name
                                     addr = p.address
@@ -71,7 +71,6 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                                     uuid = p.uuid
                                     parseError = null
                                 } ?: run {
-                                    // تلاش برای JSON خام
                                     Profile.fromJson(jsonInput)?.let { p ->
                                         name = p.name
                                         addr = p.address
@@ -95,7 +94,6 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                     }
                     Button(
                         onClick = {
-                            // نمونه JSON برای تست
                             jsonInput = """{"name":"Test Server","address":"example.com","port":443,"type":"VLESS","uuid":"00000000-0000-0000-0000-000000000000"}"""
                             parseError = null
                         },

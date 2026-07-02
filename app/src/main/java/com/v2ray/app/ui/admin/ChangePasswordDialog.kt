@@ -11,6 +11,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.v2ray.app.security.AdminSession
 import com.v2ray.app.ui.theme.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
@@ -90,9 +94,8 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onSuccess: () -> Unit) {
                         else -> {
                             if (AdminSession.changePassword(old, new)) {
                                 success = true
-                                // بعد از 1.5 ثانیه دیالوگ را ببند
-                                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                    kotlinx.coroutines.delay(1500)
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1500)
                                     onSuccess()
                                 }
                             } else {
