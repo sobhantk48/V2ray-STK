@@ -57,8 +57,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // کتابخانه سبک V2Ray از JitPack
-    implementation("com.github.2dust:AndroidLibV2rayLite:1.0.0")
+    // V2Ray Core از JitPack
+    implementation("com.github.2dust:v2ray-core:5.14.0")
 
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     implementation("androidx.camera:camera-camera2:1.3.0")
