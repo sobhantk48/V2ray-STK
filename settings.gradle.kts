@@ -11,10 +11,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        flatDir {
-            dirs("libs")
-        }
     }
 }
 rootProject.name = "V2raySTK"
-include(":app", ":v2ray")
+include(":app")
