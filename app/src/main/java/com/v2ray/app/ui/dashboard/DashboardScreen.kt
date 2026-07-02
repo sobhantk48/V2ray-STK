@@ -71,7 +71,9 @@ fun DashboardScreen(
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
-                            containerColor = DarkSurface
+                            colors = DropdownMenuDefaults.colors(
+                                containerColor = DarkSurface
+                            )
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Admin Panel", color = WhiteText) },
