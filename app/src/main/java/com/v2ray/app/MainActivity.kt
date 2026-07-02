@@ -19,16 +19,7 @@ class MainActivity : ComponentActivity() {
         Logger.initialize(this)
         Logger.writeLog("MainActivity started")
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            val perms = mutableListOf<String>()
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-                perms.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-            if (perms.isNotEmpty()) {
-                ActivityCompat.requestPermissions(this, perms.toTypedArray(), 100)
-            }
-        }
+        requestPermissions()
 
         setContent {
             V2rayAppTheme {
@@ -38,10 +29,38 @@ class MainActivity : ComponentActivity() {
         Logger.writeLog("Compose loaded")
     }
 
+    private fun requestPermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 100)
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == 100 && grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-            Logger.writeLog("Storage permissions granted")
-            Toast.makeText(this, "Storage permissions granted", Toast.LENGTH_SHORT).show()
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 100) {
+            grantResults.forEachIndexed { index, result ->
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    Logger.writeLog("Permission granted: ${permissions[index]}")
+                } else {
+                    Logger.writeLog("Permission denied: ${permissions[index]}")
+                }
+            }
         }
     }
 }

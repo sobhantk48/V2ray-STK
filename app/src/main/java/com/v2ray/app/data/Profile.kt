@@ -2,15 +2,16 @@ package com.v2ray.app.data
 
 import android.util.Base64
 import java.io.Serializable
+import kotlinx.serialization.Serializable as KSerializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
 
+@KSerializable
 data class Profile(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
@@ -39,11 +40,10 @@ data class Profile(
             "SHADOWSOCKS" -> buildShadowsocksJson()
             else -> buildVlessJson()
         }
-        // تبدیل JsonObject به رشته JSON
         return outbound.toString()
     }
 
-    private fun buildVlessJson(): JsonObject = buildJsonObject {
+    private fun buildVlessJson() = buildJsonObject {
         put("protocol", "vless")
         put("settings", buildJsonObject {
             put("vnext", JsonArray(listOf(
@@ -78,7 +78,7 @@ data class Profile(
         }
     }
 
-    private fun buildVmessJson(): JsonObject = buildJsonObject {
+    private fun buildVmessJson() = buildJsonObject {
         put("protocol", "vmess")
         put("settings", buildJsonObject {
             put("vnext", JsonArray(listOf(
@@ -96,7 +96,7 @@ data class Profile(
         })
     }
 
-    private fun buildTrojanJson(): JsonObject = buildJsonObject {
+    private fun buildTrojanJson() = buildJsonObject {
         put("protocol", "trojan")
         put("settings", buildJsonObject {
             put("servers", JsonArray(listOf(
@@ -110,7 +110,7 @@ data class Profile(
         })
     }
 
-    private fun buildShadowsocksJson(): JsonObject = buildJsonObject {
+    private fun buildShadowsocksJson() = buildJsonObject {
         put("protocol", "shadowsocks")
         put("settings", buildJsonObject {
             put("servers", JsonArray(listOf(
@@ -134,6 +134,24 @@ data class Profile(
                     link.startsWith("ss://") -> parseShadowsocks(link)
                     else -> null
                 }
+            } catch (_: Exception) { null }
+        }
+
+        fun fromJson(jsonString: String): Profile? {
+            return try {
+                val obj = Json.parseToJsonElement(jsonString).jsonObject
+                Profile(
+                    name = obj["name"]?.jsonPrimitive?.content ?: "Imported",
+                    type = obj["type"]?.jsonPrimitive?.content?.uppercase() ?: "VLESS",
+                    address = obj["address"]?.jsonPrimitive?.content ?: "",
+                    port = obj["port"]?.jsonPrimitive?.content?.toIntOrNull() ?: 443,
+                    uuid = obj["uuid"]?.jsonPrimitive?.content ?: "",
+                    sni = obj["sni"]?.jsonPrimitive?.content ?: "",
+                    fingerprint = obj["fingerprint"]?.jsonPrimitive?.content ?: "chrome",
+                    flow = obj["flow"]?.jsonPrimitive?.content ?: "",
+                    realityPublicKey = obj["pbk"]?.jsonPrimitive?.content ?: "",
+                    realityShortId = obj["sid"]?.jsonPrimitive?.content ?: ""
+                )
             } catch (_: Exception) { null }
         }
 

@@ -10,9 +10,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.v2ray.app.data.Profile
 import com.v2ray.app.ui.theme.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +31,7 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                     onValueChange = { jsonInput = it },
                     label = { Text("Paste JSON or Link", color = WhiteText.copy(0.7f)) },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3,
+                    maxLines = 5,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = PrimaryBlue,
                         unfocusedBorderColor = WhiteText.copy(0.3f),
@@ -45,6 +42,7 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                 Button(
                     onClick = {
                         try {
+                            // تلاش برای لینک
                             Profile.fromLink(jsonInput)?.let { p ->
                                 name = p.name
                                 addr = p.address
@@ -52,12 +50,14 @@ fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
                                 type = p.type
                                 uuid = p.uuid
                             } ?: run {
-                                val obj = Json.parseToJsonElement(jsonInput).jsonObject
-                                name = obj["name"]?.jsonPrimitive?.content ?: name
-                                addr = obj["address"]?.jsonPrimitive?.content ?: addr
-                                port = obj["port"]?.jsonPrimitive?.content?.toString() ?: port
-                                type = obj["type"]?.jsonPrimitive?.content?.uppercase() ?: type
-                                uuid = obj["uuid"]?.jsonPrimitive?.content ?: ""
+                                // تلاش برای JSON خام
+                                Profile.fromJson(jsonInput)?.let { p ->
+                                    name = p.name
+                                    addr = p.address
+                                    port = p.port.toString()
+                                    type = p.type
+                                    uuid = p.uuid
+                                }
                             }
                         } catch (_: Exception) {}
                     },

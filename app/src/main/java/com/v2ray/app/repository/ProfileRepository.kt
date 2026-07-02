@@ -1,54 +1,50 @@
 package com.v2ray.app.repository
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import android.content.SharedPreferences
 import com.v2ray.app.data.Profile
 import com.v2ray.app.utils.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 
-private val Context.dataStore by preferencesDataStore(name = "v2ray_profiles")
-
 object ProfileRepository {
-    private lateinit var context: Context
+    private lateinit var prefs: SharedPreferences
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
     private val _profiles = MutableStateFlow<List<Profile>>(emptyList())
     val profiles: StateFlow<List<Profile>> = _profiles
 
     fun initialize(ctx: Context) {
-        context = ctx.applicationContext
-        Logger.writeLog("ProfileRepository initialized")
-        CoroutineScope(Dispatchers.IO).launch { loadFromStorage() }
+        prefs = ctx.getSharedPreferences("v2ray_profiles", Context.MODE_PRIVATE)
+        Logger.writeLog("ProfileRepository initialized with SharedPreferences")
+        loadFromStorage()
     }
 
-    private suspend fun loadFromStorage() {
+    private fun loadFromStorage() {
         try {
-            val raw = context.dataStore.data.first()[stringPreferencesKey("profiles")]
+            val raw = prefs.getString("profiles", null)
             if (!raw.isNullOrBlank()) {
                 _profiles.value = json.decodeFromString(raw)
-                Logger.writeLog("Loaded ${_profiles.value.size} profiles")
+                Logger.writeLog("Loaded ${_profiles.value.size} profiles from SharedPreferences")
+            } else {
+                Logger.writeLog("No profiles found in SharedPreferences")
             }
         } catch (e: Exception) {
             Logger.writeError("Load profiles failed", e)
         }
     }
 
-    private suspend fun saveToStorage() {
+    private fun saveToStorage() {
         try {
             val raw = json.encodeToString(_profiles.value)
-            context.dataStore.edit { prefs ->
-                prefs[stringPreferencesKey("profiles")] = raw
-            }
+            prefs.edit().putString("profiles", raw).apply()
+            Logger.writeLog("Saved ${_profiles.value.size} profiles to SharedPreferences")
         } catch (e: Exception) {
             Logger.writeError("Save profiles failed", e)
         }
@@ -80,6 +76,7 @@ object ProfileRepository {
             list.map { it.copy(selected = it.id == id) }
         }
         save()
+        Logger.writeLog("Selected profile: $id")
     }
 
     fun getSelected(): Profile? = _profiles.value.firstOrNull { it.selected }
