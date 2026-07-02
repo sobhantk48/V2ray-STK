@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddConfigDialog(onDismiss: () -> Unit, onAdd: (Profile) -> Unit) {
     var name by remember { mutableStateOf("") }

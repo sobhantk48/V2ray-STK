@@ -19,7 +19,7 @@ fun AboutScreen(onBack: () -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("About Us", color = WhiteText) }, navigationIcon = {
             IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }) { pad ->
         Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {

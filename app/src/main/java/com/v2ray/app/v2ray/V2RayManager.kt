@@ -15,7 +15,6 @@ class V2RayManager(private val context: Context) {
         try {
             if (running) return@withContext Result.success(Unit)
 
-            // کپی فایل‌های assets به حافظه داخلی
             val assetsDir = File(context.filesDir, "assets")
             if (!assetsDir.exists()) assetsDir.mkdirs()
 
@@ -29,11 +28,9 @@ class V2RayManager(private val context: Context) {
             }
             xrayFile.setExecutable(true)
 
-            // ذخیره کانفیگ
             val configFile = File(context.filesDir, "v2ray_config.json")
             configFile.writeText(configJson)
 
-            // ساخت دستور اجرای Xray
             val command = arrayOf(
                 xrayFile.absolutePath,
                 "run",
@@ -43,14 +40,12 @@ class V2RayManager(private val context: Context) {
 
             Logger.writeLog("Starting Xray with command: ${command.joinToString(" ")}")
 
-            // اجرای Xray به عنوان یک پروسه جداگانه
             val processBuilder = ProcessBuilder(*command)
             processBuilder.redirectErrorStream(true)
             processBuilder.directory(context.filesDir)
 
             process = processBuilder.start()
 
-            // خواندن خروجی در یک ترد جداگانه
             Thread {
                 try {
                     val reader = process?.inputStream?.bufferedReader()
@@ -101,7 +96,6 @@ class V2RayManager(private val context: Context) {
     fun isRunning(): Boolean = running
 
     fun getStats(): V2RayStats {
-        // از Xray نمی‌توان آمار گرفت، این فقط شبیه‌سازی است
         return V2RayStats(0, 0, 0)
     }
 }

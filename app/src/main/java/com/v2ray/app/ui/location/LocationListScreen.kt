@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -27,7 +28,7 @@ fun LocationListScreen(vm: MainViewModel, onBack: () -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("Location List", color = WhiteText) }, navigationIcon = {
             IconButton(onBack) { Icon(Icons.Default.ArrowBack, tint = WhiteText, contentDescription = "Back") }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }) { pad ->
         LazyColumn(Modifier.fillMaxSize().background(DarkBackground).padding(pad).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(profiles.size) {
@@ -40,7 +41,7 @@ fun LocationListScreen(vm: MainViewModel, onBack: () -> Unit) {
 
 @Composable fun LocationCard(profile: Profile, selected: Boolean, onClick: () -> Unit) {
     Card(Modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(if (selected) PrimaryBlue.copy(0.2f) else DarkSurface),
+        colors = CardDefaults.cardColors(containerColor = if (selected) PrimaryBlue.copy(0.2f) else DarkSurface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {

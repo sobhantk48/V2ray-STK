@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.v2ray.app.data.Profile
 import com.v2ray.app.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileDialog(profile: Profile, onDismiss: () -> Unit, onSave: (Profile) -> Unit) {
     var name by remember { mutableStateOf(profile.name) }

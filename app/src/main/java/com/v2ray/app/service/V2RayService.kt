@@ -36,7 +36,7 @@ class V2RayService : Service() {
         fun start(ctx: Context, profile: Profile) {
             Logger.writeLog("V2RayService start: ${profile.name}")
             ctx.startForegroundService(Intent(ctx, V2RayService::class.java).apply {
-                putExtra("profile", profile)
+                putExtra("profile", profile as java.io.Serializable)
             })
         }
         fun stop(ctx: Context) { ctx.stopService(Intent(ctx, V2RayService::class.java)) }
@@ -64,10 +64,7 @@ class V2RayService : Service() {
                 callback?.invoke(_state.value)
                 updateNotification("Connecting to ${profile.name}...")
 
-                val config = profile.toV2RayConfig()
-                Logger.writeLog("Config: $config")
-
-                val result = manager.startV2Ray(config)
+                val result = manager.startV2Ray(profile.toV2RayConfig())
                 if (result.isSuccess) {
                     _state.value = _state.value.copy(
                         status = ConnectionStatus.CONNECTED,

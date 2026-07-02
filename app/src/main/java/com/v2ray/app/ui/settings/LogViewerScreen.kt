@@ -33,7 +33,7 @@ fun LogViewerScreen(onBack: () -> Unit) {
             IconButton({ Logger.clearLogs(); logs = "Logs cleared" }) {
                 Icon(Icons.Default.Delete, tint = RedError, contentDescription = "Clear")
             }
-        }, colors = TopAppBarDefaults.topAppBarColors(DarkBackground))
+        }, colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBackground))
     }) { pad ->
         Column(Modifier.fillMaxSize().background(DarkBackground).padding(pad)) {
             Text("Log File: ${Logger.getLogFilePath() ?: "Unknown"}", color = WhiteText.copy(0.7f), fontSize = 12.sp,

@@ -42,7 +42,10 @@ fun DashboardScreen(
     ModalNavigationDrawer(
         drawerState = drawer,
         drawerContent = {
-            ModalDrawerSheet(DarkSurface) {
+            ModalDrawerSheet(
+                drawerContainerColor = DarkSurface,
+                drawerContentColor = WhiteText
+            ) {
                 Column(Modifier.fillMaxSize().padding(16.dp)) {
                     Text("V2RAY STK", color = PrimaryBlue, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(bottom = 24.dp))
                     DrawerItem(Icons.Default.Settings, "Settings", onNavigateToSettings)
@@ -137,7 +140,7 @@ fun DashboardScreen(
 @Composable fun ConnectButton(status: ConnectionStatus, onClick: () -> Unit) {
     Button(onClick, Modifier.fillMaxWidth(0.7f).height(64.dp).clip(RoundedCornerShape(16.dp)),
         colors = ButtonDefaults.buttonColors(
-            when (status) {
+            containerColor = when (status) {
                 ConnectionStatus.CONNECTED -> GreenAccent
                 ConnectionStatus.CONNECTING -> CyanAccent
                 ConnectionStatus.ERROR -> RedError
