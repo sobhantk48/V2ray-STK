@@ -1,43 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="com.v2ray.myvpn"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.v2ray.app">
 
-    <uses-permission
-        android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
-    android:name=".core.MyXrayApplication"
         android:allowBackup="true"
-        android:label="V2ray STK"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.V2rayApp"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31">
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-
+            android:exported="true"
+            android:theme="@style/Theme.V2rayApp">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category
-                    android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
         <service
-            android:name=".vpn.MyVpnService"
-            android:permission="android.permission.BIND_VPN_SERVICE"
-            android:exported="false">
-
-            <intent-filter>
-                <action
-                    android:name="android.net.VpnService"/>
-            </intent-filter>
-
-        </service>
+            android:name=".service.V2RayService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
     </application>
-
 </manifest>
