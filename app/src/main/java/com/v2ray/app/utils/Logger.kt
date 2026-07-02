@@ -2,7 +2,6 @@ package com.v2ray.app.utils
 
 import android.content.Context
 import android.os.Build
-import android.os.Environment
 import android.util.Log
 import java.io.File
 import java.text.SimpleDateFormat
@@ -19,23 +18,15 @@ object Logger {
     fun initialize(ctx: Context) {
         context = ctx.applicationContext
         try {
-            // استفاده از Documents برای Android 10+ و حافظه داخلی برای نسخه‌های پایین‌تر
-            val externalDir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            } else {
-                Environment.getExternalStorageDirectory()
-            }
-
-            val appDir = File(externalDir, "V2RAY_STK_LOGS")
+            // استفاده از filesDir برای اطمینان از دسترسی نوشتن
+            val appDir = File(context.filesDir, "logs")
             if (!appDir.exists()) {
-                val created = appDir.mkdirs()
-                Log.d(TAG, "Log directory created: $created at ${appDir.absolutePath}")
+                appDir.mkdirs()
             }
 
             logFile = File(appDir, LOG_FILE_NAME)
             if (!logFile!!.exists()) {
                 logFile!!.createNewFile()
-                Log.d(TAG, "Log file created at ${logFile!!.absolutePath}")
             }
 
             isInitialized = true
@@ -89,12 +80,9 @@ object Logger {
         return try {
             val file = logFile
             if (file == null || !file.exists()) {
-                Log.e(TAG, "Log file does not exist")
                 return null
             }
-            val content = file.readText()
-            Log.d(TAG, "Log content length: ${content.length}")
-            content
+            file.readText()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to read log file", e)
             null

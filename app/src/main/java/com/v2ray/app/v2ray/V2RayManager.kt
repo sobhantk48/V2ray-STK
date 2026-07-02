@@ -28,7 +28,17 @@ class V2RayManager(private val context: Context) {
             if (!xrayFile.exists()) {
                 return@withContext Result.failure(Exception("Xray binary not found in assets"))
             }
-            xrayFile.setExecutable(true)
+
+            // تنظیم مجوز اجرا با chmod
+            try {
+                val chmodProcess = Runtime.getRuntime().exec(arrayOf("chmod", "755", xrayFile.absolutePath))
+                chmodProcess.waitFor()
+                Logger.writeLog("chmod 755 executed for ${xrayFile.absolutePath}")
+            } catch (e: Exception) {
+                Logger.writeError("chmod failed", e)
+                // fallback: استفاده از setExecutable
+                xrayFile.setExecutable(true, false)
+            }
 
             // ذخیره کانفیگ
             val configFile = File(context.filesDir, "v2ray_config.json")
